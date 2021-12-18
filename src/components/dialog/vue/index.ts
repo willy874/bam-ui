@@ -1,9 +1,14 @@
 import { reactive } from 'vue';
 import type { DialogOptions } from '../types';
-import { create, use } from '../core/control';
+import {
+  createDialog as createDialogNative,
+  useDialog as useDialogNative,
+  useFrame as useFrameNative,
+} from '../core/control';
 import Dialog from '../core/dialog';
 import Frame from '../core/frame';
 import VueDialog from '../vue/Dialog';
+import FrameDraggable from '../vue/Draggable';
 
 /**
  * types
@@ -18,16 +23,7 @@ export { Dialog, Frame };
 /**
  * component
  */
-export { VueDialog };
-
-/**
- *
- * @param {number} id
- * @returns {Proxy<Dialog>}
- */
-export function useDialog(id?: symbol) {
-  return reactive(use(id));
-}
+export { VueDialog, FrameDraggable };
 
 /**
  *
@@ -35,5 +31,26 @@ export function useDialog(id?: symbol) {
  * @returns {Dialog}
  */
 export function createDialog(options: DialogOptions) {
-  return create(options);
+  return createDialogNative(options);
+}
+
+/**
+ *
+ * @param {symbol} id
+ * @returns {Proxy<Dialog>}
+ */
+export function useDialog(id?: symbol) {
+  return reactive(useDialogNative(id));
+}
+
+/**
+ *
+ * @param {symbol} id
+ * @returns {Proxy<Frame>}
+ */
+export function useFrame(id: symbol) {
+  const frame = useFrameNative(id);
+  if (frame) {
+    return reactive(frame);
+  }
 }

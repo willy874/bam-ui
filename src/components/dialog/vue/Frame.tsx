@@ -2,6 +2,7 @@ import { ref, onMounted, onUpdated, onUnmounted, defineComponent } from 'vue';
 import type { PropType } from 'vue';
 import Dialog from '../core/dialog';
 import Frame from '../core/frame';
+import { getTransformStyleString, TransformStyle } from '../utils';
 
 export default defineComponent({
   name: 'bam-frame',
@@ -15,6 +16,10 @@ export default defineComponent({
       type: Object as PropType<Frame>,
       required: true,
     },
+    transform: {
+      type: Object as PropType<TransformStyle>,
+      default: () => ({}),
+    },
     zIndex: {
       type: Number,
       default: 1,
@@ -23,9 +28,21 @@ export default defineComponent({
 
   setup(props, context) {
     const vm = ref(null);
-    if (props.frame.hook.bgClick.length === 0) {
+
+    /**
+     * @Created
+     */
+    if (props.dialog.isBackgroundMask && props.frame.hook.bgClick.length === 0) {
       props.frame.on('bgClick', () => props.frame.onClose(props.dialog));
     }
+
+    /**
+     * @Event
+     */
+    const onClick = (e: PointerEvent) => {
+      e.stopPropagation();
+      props.dialog.sortToRight(props.frame);
+    };
 
     /**
      * @Lifecycle
@@ -40,12 +57,16 @@ export default defineComponent({
     const render = () => (
       <div
         ref={(e: Element) => props.frame.setFrameElement(e)}
-        class={{ 'absolute top-0 left-0 transform': true }}
-        onClick={(e) => e.stopPropagation()}
-        style={{ zIndex: props.zIndex }}
-        draggable={true}
-        onDragstart={(e) => props.dialog.onDragstart(e, props.frame.id)}
-        onTouchstart={(e) => props.dialog.onTouchstart(e, props.frame.id)}
+        class={{ 'absolute top-0 left-0 pointer-events-auto': true }}
+        style={{
+          zIndex: props.zIndex,
+          transform: getTransformStyleString({
+            ...props.transform,
+            translateX: props.frame.left,
+            translateY: props.frame.top,
+          }),
+        }}
+        onClick={onClick}
       >
         {context.slots.default && context.slots.default()}
       </div>
@@ -53,6 +74,7 @@ export default defineComponent({
 
     return (v) => {
       vm.value = v;
+
       return render();
     };
   },

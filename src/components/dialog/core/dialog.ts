@@ -1,33 +1,33 @@
-import type { DialogOptions, OpenFrameOptions } from '../types';
+import { DialogOptions, OpenFrameOptions, EventType } from '../types';
 import { DialogBackgroundClickEvent, DialogDragEvent, DialogTouchEvent } from './event';
 import Frame from './frame';
-import png1px from '../assets/png1px';
-import { getViewportOffset } from '../utils';
+import { getViewportOffset, clearDragImage } from '../utils';
+import { createFrame } from './control';
 
-const dialogHooks = 'mount,unmount,update,resize'.split(',');
+type GetFrameParam = Frame | number | symbol;
+
+const dialogHooks = 'mount,unmount,update,resize,dragover'.split(',');
 
 class Dialog {
   public readonly id: symbol;
   public readonly frames: Frame[] = [];
-  public target: Frame | null = null;
+  public focusFrame: Frame | null = null;
+  public eventType: EventType = EventType.NORMAL;
   public element: Element | null = null;
-  public mouseOffsetX = 0;
-  public mouseOffsetY = 0;
-  public readonly zIndex = {
-    frame: 1000,
-  };
+  public touches: Touch[] = [];
+  public isBackgroundMask: boolean;
   private hook: {
     [type: string]: Function[];
   };
 
   constructor(args: DialogOptions) {
     this.id = args.id || Symbol('Dialog');
-    this.zIndex = Object.assign(this.zIndex, args.zIndex);
+    this.isBackgroundMask = args.isBackgroundMask === false ? false : true;
     this.hook = {};
     dialogHooks.forEach((hook) => {
       this.hook[hook] = [];
       if (args.hook) {
-        this.on('mount', args.hook[hook]);
+        this.on(hook, args.hook[hook]);
       }
     });
   }
@@ -40,6 +40,14 @@ class Dialog {
     return (value: Element) => {
       this.frames[index].element = value;
     };
+  }
+
+  sortToRight(id: GetFrameParam) {
+    const frame = this.getFrame(id);
+    if (frame) {
+      const indexOf = this.frames.map((p) => p.dialogId).indexOf(frame.dialogId);
+      this.frames.push(...this.frames.splice(indexOf, 1));
+    }
   }
 
   on(type: string, callback?: Function) {
@@ -90,32 +98,32 @@ class Dialog {
   }
 
   onBgClick(e: PointerEvent) {
-    this.frames.forEach((f) => {
-      if (f.hook?.bgClick) {
-        const bgClickEvent = new DialogBackgroundClickEvent({
-          event: e,
-          dialog: this,
-          frame: f,
-        });
-        f.hook.bgClick.forEach((event) => {
-          event.apply(f, bgClickEvent);
-        });
-      }
-    });
+    if (this.element && e.target instanceof Node && this.element.contains(e.target)) {
+      this.frames.forEach((f) => {
+        if (f.hook?.bgClick) {
+          const bgClickEvent = new DialogBackgroundClickEvent({
+            event: e,
+            dialog: this,
+            frame: f,
+          });
+          f.hook.bgClick.forEach((event) => {
+            event.apply(f, bgClickEvent);
+          });
+        }
+      });
+    }
   }
 
-  onDragstart(event: DragEvent, id: symbol) {
-    const frame = this.frames.find((f) => f.id === id);
+  onDragstart(event: DragEvent, id: GetFrameParam) {
+    const frame = this.getFrame(id);
     if (frame && frame.element && event.dataTransfer) {
-      /** 清除拖拉顯示元素 */
-      const img = new Image();
-      img.src = png1px;
-      event.dataTransfer.setDragImage(img, 0, 0);
-      this.target = frame;
-      /** 紀錄滑鼠相對於視窗的座標 */
+      clearDragImage(event);
+      this.focusFrame = frame;
+      this.eventType = EventType.DRAG_MOVE;
+      /** 紀錄滑鼠相對於視窗的座標 **/
       const viewPort = getViewportOffset(frame.element);
-      this.mouseOffsetX = event.pageX - viewPort.left;
-      this.mouseOffsetY = event.pageY - viewPort.top;
+      frame.mouseOffsetX = event.pageX - viewPort.left;
+      frame.mouseOffsetY = event.pageY - viewPort.top;
       frame.onDragstart(
         new DialogDragEvent({
           event,
@@ -127,9 +135,21 @@ class Dialog {
       console.warn('not element or event not dataTransfer target');
     }
   }
-  onTouchstart(event: TouchEvent, id: symbol) {
-    const frame = this.frames.find((f) => f.id === id);
+
+  onTouchstart(event: TouchEvent, id: GetFrameParam) {
+    const frame = this.getFrame(id);
     if (frame) {
+      this.touches = Array.from(event.touches);
+      /** 單一觸控點時 **/
+      if (frame.element && this.touches.length === 1) {
+        /** 觸控點相對於視窗的座標 **/
+        const touch = this.touches[0];
+        const viewPort = getViewportOffset(frame.element);
+        frame.mouseOffsetX = touch.pageX - viewPort.left;
+        frame.mouseOffsetY = touch.pageY - viewPort.top;
+        this.focusFrame = frame;
+        this.eventType = EventType.DRAG_MOVE;
+      }
       frame.onTouchstart(
         new DialogTouchEvent({
           event,
@@ -137,6 +157,81 @@ class Dialog {
           frame: frame,
         }),
       );
+    }
+  }
+
+  onDragover(event: DragEvent) {
+    const frame = this.focusFrame;
+    if (frame) {
+      if (this.eventType === EventType.DRAG_MOVE) {
+        frame.onDragmove({
+          pageX: event.pageX,
+          pageY: event.pageY,
+        });
+      }
+      // frame.onDragover(
+      //   new DialogDragEvent({
+      //     event,
+      //     dialog: this,
+      //     frame: frame,
+      //   }),
+      // );
+    }
+  }
+
+  onTouchmove(event: TouchEvent) {
+    const frame = this.focusFrame;
+    if (frame) {
+      this.touches = Array.from(event.touches);
+      if (this.eventType === EventType.DRAG_MOVE && this.touches.length === 1) {
+        const touch = this.touches[0];
+        frame.onDragmove({
+          pageX: touch.pageX,
+          pageY: touch.pageY,
+        });
+      }
+      // frame.onTouchmove(
+      //   new DialogTouchEvent({
+      //     event,
+      //     dialog: this,
+      //     frame: frame,
+      //   }),
+      // );
+    }
+  }
+
+  onDragend(event: DragEvent) {
+    const frame = this.focusFrame;
+    if (frame) {
+      this.eventType = EventType.NORMAL;
+      frame.mouseOffsetX = 0;
+      frame.mouseOffsetY = 0;
+      // frame.onDragend(
+      //   new DialogTouchEvent({
+      //     event,
+      //     dialog: this,
+      //     frame: frame,
+      //   }),
+      // );
+    }
+  }
+
+  onTouchend(event: TouchEvent) {
+    const frame = this.focusFrame;
+    if (frame) {
+      this.touches = Array.from(event.touches);
+      if (this.touches.length === 0) {
+        this.eventType = EventType.NORMAL;
+        frame.mouseOffsetX = 0;
+        frame.mouseOffsetY = 0;
+      }
+      // frame.onTouchend(
+      //   new DialogTouchEvent({
+      //     event,
+      //     dialog: this,
+      //     frame: frame,
+      //   }),
+      // );
     }
   }
 
@@ -149,8 +244,8 @@ class Dialog {
           frame.onError = reject;
           this.frames.push(frame);
         } else {
-          const target = new Frame({
-            dialogId: this.id,
+          const target = createFrame({
+            dialogId: this.id || Symbol('Frame'),
             close: resolve,
             onError: reject,
             ...frame,
@@ -197,7 +292,10 @@ class Dialog {
     return await this.callbackCloseFrame(frames, callback);
   }
 
-  getFrame(arg?: unknown) {
+  getFrame(arg?: GetFrameParam) {
+    if (arg instanceof Frame) {
+      return this.frames.find((f) => f === arg);
+    }
     if (typeof arg === 'number') {
       const index = arg as number;
       return this.frames[index];

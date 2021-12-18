@@ -1,6 +1,12 @@
 import type { FrameOptions, FramePosition } from '../types';
 import type Dialog from './dialog';
 import type { DialogDragEvent, DialogTouchEvent } from './event';
+import { useDialog } from './control';
+
+interface PagePosition {
+  pageX: number;
+  pageY: number;
+}
 
 const frameHooks = 'mount,unmount,update,bgClick,dragstart,touchstart'.split(',');
 
@@ -8,9 +14,12 @@ export default class Frame {
   id: symbol;
   dialogId: symbol;
   view: object;
+  isOverLimit: boolean;
   element: Element | null = null;
   top: string = '0px';
   left: string = '0px';
+  mouseOffsetX = 0;
+  mouseOffsetY = 0;
   close: Function | null;
   onError: Function;
   hook: {
@@ -21,13 +30,14 @@ export default class Frame {
     this.id = Symbol('Frame');
     this.dialogId = args.dialogId;
     this.view = args.view;
+    this.isOverLimit = args.isOverLimit || false;
     this.close = args.close;
     this.onError = args.onError;
     this.hook = {};
     frameHooks.forEach((hook) => {
       this.hook[hook] = [];
       if (args.hook) {
-        this.on('mount', args.hook[hook]);
+        this.on(hook, args.hook[hook]);
       }
     });
     this.setPosition(args.position || 'default');
@@ -47,8 +57,9 @@ export default class Frame {
       this.left = `calc(${window.innerWidth / 2}px - 50%)`;
     }
     if (position === 'default') {
-      this.top = `calc(${window.innerHeight / 3}px)`;
-      this.left = `calc(${window.innerWidth / 2}px - 50%)`;
+      const length = useDialog(this.dialogId).frames.length;
+      this.top = `calc(${window.innerHeight / 3 + 10 * length}px)`;
+      this.left = `calc(${window.innerWidth / 2 + 10 * length}px - 50%)`;
     }
   }
 
@@ -115,5 +126,33 @@ export default class Frame {
     this.hook.touchstart.forEach((event) => {
       event.call(this, e);
     });
+  }
+
+  onDragmove(pos: PagePosition) {
+    if (this.element) {
+      const position = { top: this.top, left: this.left };
+      const elementClientWidth = this.element.clientWidth;
+      const elementClientHeight = this.element.clientHeight;
+      if (this.isOverLimit) {
+        if (window.innerWidth - elementClientWidth < pos.pageX - this.mouseOffsetX) {
+          position.left = window.innerWidth - elementClientWidth - 1 + 'px';
+        } else if (pos.pageX - this.mouseOffsetX < 1) {
+          position.left = '0';
+        } else {
+          position.left = pos.pageX - this.mouseOffsetX + 'px';
+        }
+        if (window.innerHeight - elementClientHeight < pos.pageY - this.mouseOffsetY) {
+          position.top = window.innerHeight - elementClientHeight - 1 + 'px';
+        } else if (pos.pageY - this.mouseOffsetY < 1) {
+          position.top = '0';
+        } else {
+          position.top = pos.pageY - this.mouseOffsetY + 'px';
+        }
+      } else {
+        position.top = pos.pageY - this.mouseOffsetY + 'px';
+        position.left = pos.pageX - this.mouseOffsetX + 'px';
+      }
+      this.setPosition(position);
+    }
   }
 }

@@ -7,10 +7,8 @@ export interface DialogHookParam {
 
 export interface DialogOptions {
   id?: symbol;
-  zIndex?: {
-    [name: string]: number;
-  };
   hook?: DialogHookParam;
+  isBackgroundMask?: boolean;
 }
 
 export interface FrameHookParam {
@@ -36,4 +34,11 @@ export interface FrameOptions extends OpenFrameOptions {
   close: Function;
   onError: Function;
   position?: FramePosition;
+  isOverLimit?: boolean;
+}
+
+export enum EventType {
+  NORMAL = 0,
+  DRAG_MOVE = 1,
+  RESIZE = 2,
 }

@@ -1,7 +1,7 @@
-import { ref, reactive, onMounted, onUpdated, onUnmounted, defineComponent, markRaw } from 'vue';
+import { ref, reactive, computed, onMounted, onUpdated, onUnmounted, defineComponent } from 'vue';
 import Frame from '../core/frame';
 import FrameComponent from './Frame';
-import { create } from '../core/control';
+import { createDialog } from '../core/control';
 
 export default defineComponent({
   name: 'bam-dialog',
@@ -13,13 +13,13 @@ export default defineComponent({
       type: String,
       default: 'Dialog',
     },
-    zIndex: {
-      type: Object,
-      default: () => ({}),
-    },
     backgroundMask: {
       type: String,
-      default: '#00000044',
+      default: 'transparent',
+    },
+    isBackgroundMask: {
+      type: Boolean,
+      default: true,
     },
   },
 
@@ -29,9 +29,9 @@ export default defineComponent({
      */
     const id = ref(Symbol(props.name));
     const vm = ref(null);
-    const native = create({
+    const native = createDialog({
       id: id.value,
-      zIndex: props.zIndex,
+      isBackgroundMask: props.isBackgroundMask,
       hook: {
         mount: (...args: any[]) => context.emit('mount', ...args),
         unmount: (...args: any[]) => context.emit('unmount', ...args),
@@ -42,11 +42,39 @@ export default defineComponent({
     const dialog = reactive(native);
 
     /**
+     * @Create
+     */
+    const isBackgroundMask = computed(() => props.isBackgroundMask && dialog.frames.length);
+
+    /**
+     * @Event
+     */
+    const onClick = (e: PointerEvent) => dialog.onBgClick(e);
+    const onDragover = (e: DragEvent) => dialog.onDragover(e);
+    const onDragend = (e: DragEvent) => dialog.onDragend(e);
+    const onTouchmove = (e: TouchEvent) => dialog.onTouchmove(e);
+    const onTouchend = (e: TouchEvent) => dialog.onTouchend(e);
+
+    /**
      * @Lifecycle
      */
-    onMounted(() => dialog.onMount(vm.value));
+    onMounted(() => {
+      dialog.onMount(vm.value);
+      document.body.addEventListener('click', onClick);
+      document.body.addEventListener('dragover', onDragover);
+      document.body.addEventListener('dragend', onDragend);
+      document.body.addEventListener('touchmove', onTouchmove);
+      document.body.addEventListener('touchend', onTouchend);
+    });
     onUpdated(() => dialog.onUpdate(vm.value));
-    onUnmounted(() => dialog.onUnmount(vm.value));
+    onUnmounted(() => {
+      dialog.onUnmount(vm.value);
+      document.body.removeEventListener('click', onClick);
+      document.body.removeEventListener('dragover', onDragover);
+      document.body.removeEventListener('dragend', onDragend);
+      document.body.removeEventListener('touchmove', onTouchmove);
+      document.body.removeEventListener('touchend', onTouchend);
+    });
 
     /**
      * @Render
@@ -55,8 +83,8 @@ export default defineComponent({
       const target = native.getFrame(frame.id);
       const View = defineComponent(target?.view as object);
       return View ? (
-        <ban-frame key={frame.id} z-index={dialog.zIndex.frame + index} frame={frame} dialog={dialog}>
-          <View>{frame.id}</View>
+        <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog}>
+          <View frame-id={frame.id} />
         </ban-frame>
       ) : null;
     };
@@ -65,10 +93,10 @@ export default defineComponent({
         ref={(e: Element) => dialog.setRootElement(e)}
         class={{
           'fixed inset-0': true,
-          'pointer-events-auto': dialog.frames.length,
-          'opacity-0 pointer-events-none': !dialog.frames.length,
+          'pointer-events-auto': isBackgroundMask.value,
+          'pointer-events-none': !isBackgroundMask.value,
+          'opacity-0': !dialog.frames.length,
         }}
-        onClick={(e: PointerEvent) => dialog.onBgClick(e)}
       >
         <div class="absolute inset-0" style={{ background: props.backgroundMask }}></div>
         {dialog.frames.map(renderFrameItem)}
@@ -77,6 +105,7 @@ export default defineComponent({
 
     return (v) => {
       vm.value = v;
+
       return render();
     };
   },
