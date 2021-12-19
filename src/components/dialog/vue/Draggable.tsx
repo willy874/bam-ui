@@ -1,4 +1,5 @@
 import { ref, defineComponent } from 'vue';
+import { EventType } from '../types';
 import { findFrame } from './utils';
 
 export default defineComponent({
@@ -25,7 +26,7 @@ export default defineComponent({
       if (vm.value) {
         const FrameComponent = findFrame(vm.value);
         if (FrameComponent) {
-          FrameComponent.dialog.onDragstart(e, FrameComponent.frame);
+          FrameComponent.dialog.onDragstart(e, FrameComponent.frame, EventType.DRAG_MOVE);
         }
       }
     };

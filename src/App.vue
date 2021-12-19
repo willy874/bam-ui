@@ -1,10 +1,11 @@
 <script setup lang="tsx">
-import 'virtual:windi.css'
+// import 'virtual:windi.css'
 import HelloWorld from './components/HelloWorld.vue'
 import { VueDialog, useDialog, FrameDraggable } from './components/dialog/vue'
 
 const onOpenDialog = async () => {
   const dialog = useDialog()
+
   const view = {
     props: {
       frameId: {
@@ -13,17 +14,18 @@ const onOpenDialog = async () => {
       }
     },
     setup(props) {
+      const d = useDialog()
       return () => (
         <div
-          class="p-4" 
           style={{
             background: '#fff',
-            width: '100px',
-            height: '100px',
+            padding: '4rem',
             border: '1px solid #000'
           }}
         >
           <button onClick={() => dialog.closeFrame(props.frameId)}>關閉</button>
+          <div class="py-2"></div>
+          <button type="button" onClick={() => d.openFrame({ view })}>打開</button>
           <div class="py-2"></div>
           <FrameDraggable>拖拉</FrameDraggable>
         </div>
@@ -43,8 +45,8 @@ const onOpenDialog = async () => {
       <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
       <button type="button" @click="onOpenDialog">打開</button>
     </div>
-    <!-- <VueDialog background-mask="#00000044" /> -->
-    <VueDialog :is-background-mask="false" />
+    <VueDialog background-mask="#00000044" />
+    <!-- <VueDialog :is-background-mask="false" /> -->
   </div>
 </template>
 

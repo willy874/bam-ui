@@ -1,8 +1,8 @@
-import { ref, onMounted, onUpdated, onUnmounted, defineComponent } from 'vue';
-import type { PropType } from 'vue';
+import { ref, onMounted, onUpdated, onUnmounted, defineComponent, PropType } from 'vue';
+import { EventType } from '../types';
 import Dialog from '../core/dialog';
 import Frame from '../core/frame';
-import { getTransformStyleString, TransformStyle } from '../utils';
+import { getTransformStyleString } from '../utils';
 
 export default defineComponent({
   name: 'bam-frame',
@@ -15,10 +15,6 @@ export default defineComponent({
     frame: {
       type: Object as PropType<Frame>,
       required: true,
-    },
-    transform: {
-      type: Object as PropType<TransformStyle>,
-      default: () => ({}),
     },
     zIndex: {
       type: Number,
@@ -39,10 +35,6 @@ export default defineComponent({
     /**
      * @Event
      */
-    const onClick = (e: PointerEvent) => {
-      e.stopPropagation();
-      props.dialog.sortToRight(props.frame);
-    };
 
     /**
      * @Lifecycle
@@ -61,14 +53,50 @@ export default defineComponent({
         style={{
           zIndex: props.zIndex,
           transform: getTransformStyleString({
-            ...props.transform,
             translateX: props.frame.left,
             translateY: props.frame.top,
           }),
+          width: props.frame.width,
+          height: props.frame.height,
         }}
-        onClick={onClick}
+        onClick={(e) => e.stopPropagation()}
+        onMousedown={() => props.dialog.sortToRight(props.frame.id)}
       >
-        {context.slots.default && context.slots.default()}
+        <div
+          class={{
+            'absolute inset-0 overflow-auto': props.frame.width !== 'auto' && props.frame.height !== 'auto',
+          }}
+        >
+          {context.slots.default && context.slots.default()}
+        </div>
+        {props.frame.isResize ? (
+          <>
+            <div
+              class="absolute -top-2 left-0 right-0 h-4 cursor-ns-resize"
+              onClick={(e) => e.stopPropagation()}
+              draggable={true}
+              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_TOP)}
+            ></div>
+            <div
+              class="absolute -bottom-2 left-0 right-0 h-4 cursor-ns-resize"
+              onClick={(e) => e.stopPropagation()}
+              draggable={true}
+              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_BOTTOM)}
+            ></div>
+            <div
+              class="absolute -right-2 top-0 bottom-0 w-4 cursor-ew-resize"
+              onClick={(e) => e.stopPropagation()}
+              draggable={true}
+              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_RIGHT)}
+            ></div>
+            <div
+              class="absolute -left-2 top-0 bottom-0 w-4 cursor-ew-resize"
+              onClick={(e) => e.stopPropagation()}
+              draggable={true}
+              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_LEFT)}
+            ></div>
+          </>
+        ) : null}
       </div>
     );
 

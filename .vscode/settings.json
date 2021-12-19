@@ -122,6 +122,7 @@
     "commitlint",
     "cropperjs",
     "Dragmove",
+    "Dragresize",
     "echarts",
     "esnext",
     "esno",

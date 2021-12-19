@@ -45,8 +45,9 @@ class Dialog {
   sortToRight(id: GetFrameParam) {
     const frame = this.getFrame(id);
     if (frame) {
-      const indexOf = this.frames.map((p) => p.dialogId).indexOf(frame.dialogId);
-      this.frames.push(...this.frames.splice(indexOf, 1));
+      const indexOf = this.frames.map((p) => p.id).indexOf(frame.id);
+      const frames = this.frames.splice(indexOf, 1);
+      this.frames.push(...frames);
     }
   }
 
@@ -99,7 +100,8 @@ class Dialog {
 
   onBgClick(e: PointerEvent) {
     if (this.element && e.target instanceof Node && this.element.contains(e.target)) {
-      this.frames.forEach((f) => {
+      /** 過程中拔除會再成無法正常迴圈，要另外建立陣列紀錄 **/
+      [...this.frames].forEach((f) => {
         if (f.hook?.bgClick) {
           const bgClickEvent = new DialogBackgroundClickEvent({
             event: e,
@@ -114,12 +116,12 @@ class Dialog {
     }
   }
 
-  onDragstart(event: DragEvent, id: GetFrameParam) {
+  onDragstart(event: DragEvent, id: GetFrameParam, type: EventType) {
     const frame = this.getFrame(id);
     if (frame && frame.element && event.dataTransfer) {
       clearDragImage(event);
       this.focusFrame = frame;
-      this.eventType = EventType.DRAG_MOVE;
+      this.eventType = type;
       /** 紀錄滑鼠相對於視窗的座標 **/
       const viewPort = getViewportOffset(frame.element);
       frame.mouseOffsetX = event.pageX - viewPort.left;
@@ -163,12 +165,22 @@ class Dialog {
   onDragover(event: DragEvent) {
     const frame = this.focusFrame;
     if (frame) {
+      const pos = {
+        pageX: event.pageX,
+        pageY: event.pageY,
+      };
       if (this.eventType === EventType.DRAG_MOVE) {
-        frame.onDragmove({
-          pageX: event.pageX,
-          pageY: event.pageY,
-        });
+        frame.onDragmove(pos);
       }
+      if (
+        this.eventType === EventType.RESIZE_TOP ||
+        this.eventType === EventType.RESIZE_LEFT ||
+        this.eventType === EventType.RESIZE_BOTTOM ||
+        this.eventType === EventType.RESIZE_RIGHT
+      ) {
+        frame.onDragresize(pos, this.eventType);
+      }
+
       // frame.onDragover(
       //   new DialogDragEvent({
       //     event,

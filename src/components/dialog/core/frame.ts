@@ -1,7 +1,8 @@
-import type { FrameOptions, FramePosition } from '../types';
+import { FrameOptions, FramePosition, EventType } from '../types';
 import type Dialog from './dialog';
 import type { DialogDragEvent, DialogTouchEvent } from './event';
 import { useDialog } from './control';
+import { getViewportOffset } from '../utils';
 
 interface PagePosition {
   pageX: number;
@@ -15,9 +16,14 @@ export default class Frame {
   dialogId: symbol;
   view: object;
   isOverLimit: boolean;
+  isDraggable: boolean;
+  isResize: boolean;
+  position: FramePosition;
   element: Element | null = null;
   top: string = '0px';
   left: string = '0px';
+  width: string = 'auto';
+  height: string = 'auto';
   mouseOffsetX = 0;
   mouseOffsetY = 0;
   close: Function | null;
@@ -25,12 +31,18 @@ export default class Frame {
   hook: {
     [type: string]: Function[];
   };
+  resizeObserver: ResizeObserver | null = null;
+  isDragged: boolean = false;
+  isResized: boolean = false;
 
   constructor(args: FrameOptions) {
     this.id = Symbol('Frame');
     this.dialogId = args.dialogId;
     this.view = args.view;
-    this.isOverLimit = args.isOverLimit || false;
+    this.isOverLimit = args.isOverLimit === false ? false : true;
+    this.isDraggable = args.isDraggable === false ? false : true;
+    this.isResize = args.isResize === false ? false : true;
+    this.position = args.position || 'auto';
     this.close = args.close;
     this.onError = args.onError;
     this.hook = {};
@@ -40,7 +52,7 @@ export default class Frame {
         this.on(hook, args.hook[hook]);
       }
     });
-    this.setPosition(args.position || 'default');
+    this.setPosition(args.position || 'auto');
   }
 
   setFrameElement(value: Element) {
@@ -56,7 +68,7 @@ export default class Frame {
       this.top = `calc(${window.innerHeight / 2}px - 50%)`;
       this.left = `calc(${window.innerWidth / 2}px - 50%)`;
     }
-    if (position === 'default') {
+    if (position === 'auto') {
       const length = useDialog(this.dialogId).frames.length;
       this.top = `calc(${window.innerHeight / 3 + 10 * length}px)`;
       this.left = `calc(${window.innerWidth / 2 + 10 * length}px - 50%)`;
@@ -98,12 +110,24 @@ export default class Frame {
   }
 
   onMount(...args: any[]) {
+    if (this.element) {
+      this.resizeObserver = new ResizeObserver(() => {
+        if (this.isDragged || this.isResized) {
+          return;
+        }
+        this.setPosition(this.position);
+      });
+      this.resizeObserver.observe(this.element);
+    }
     this.hook.mount.forEach((event) => {
       event.apply(this, args);
     });
   }
 
   onUnmount(...args: any[]) {
+    if (this.element && this.resizeObserver) {
+      this.resizeObserver.unobserve(this.element);
+    }
     this.element = null;
     this.hook.unmount.forEach((event) => {
       event.apply(this, args);
@@ -129,7 +153,8 @@ export default class Frame {
   }
 
   onDragmove(pos: PagePosition) {
-    if (this.element) {
+    if (this.element && this.isDraggable) {
+      this.isDragged = true;
       const position = { top: this.top, left: this.left };
       const elementClientWidth = this.element.clientWidth;
       const elementClientHeight = this.element.clientHeight;
@@ -153,6 +178,37 @@ export default class Frame {
         position.left = pos.pageX - this.mouseOffsetX + 'px';
       }
       this.setPosition(position);
+    }
+  }
+
+  onDragresize(pos: PagePosition, type: EventType) {
+    if (this.element && this.isResize) {
+      this.isResized = true;
+      const elementClientWidth = this.element.clientWidth;
+      const elementClientHeight = this.element.clientHeight;
+      const viewPort = getViewportOffset(this.element);
+      this.top = viewPort.top + 'px';
+      this.left = viewPort.left + 'px';
+      this.width = elementClientWidth + 'px';
+      this.height = elementClientHeight + 'px';
+      if (type === EventType.RESIZE_TOP) {
+        const plusHeight = viewPort.top - pos.pageY;
+        this.top = viewPort.top - plusHeight + 'px';
+        this.height = elementClientHeight + plusHeight + 'px';
+      }
+      if (type === EventType.RESIZE_BOTTOM) {
+        const plusHeight = pos.pageY - viewPort.top - elementClientHeight;
+        this.height = elementClientHeight + plusHeight + 'px';
+      }
+      if (type === EventType.RESIZE_RIGHT) {
+        const plusWidth = pos.pageX - viewPort.left - elementClientWidth;
+        this.width = elementClientWidth + plusWidth + 'px';
+      }
+      if (type === EventType.RESIZE_LEFT) {
+        const plusWidth = viewPort.left - pos.pageX;
+        this.left = viewPort.left - plusWidth + 'px';
+        this.width = elementClientWidth + plusWidth + 'px';
+      }
     }
   }
 }

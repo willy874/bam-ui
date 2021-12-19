@@ -6,8 +6,6 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 import legacy from '@vitejs/plugin-legacy';
 import purgeIcons from 'vite-plugin-purge-icons';
 import vueSetupExtend from 'vite-plugin-vue-setup-extend';
-import windiCSS from 'vite-plugin-windicss';
-
 const root = process.cwd();
 
 function pathResolve(dir: string) {
@@ -58,8 +56,6 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
       vueJsx(),
       //
       vueSetupExtend(),
-      //
-      windiCSS(),
       //
       legacy(),
       //

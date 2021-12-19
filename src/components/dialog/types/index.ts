@@ -20,13 +20,16 @@ export interface FrameHookParam {
   touchstart?: Function;
 }
 
-export type FramePosition = 'default' | 'center' | { top: number | string; left: number | string };
+export type FramePosition = 'auto' | 'center' | { top: number | string; left: number | string };
 
 export interface OpenFrameOptions {
   view: object;
   props?: object;
   hook?: FrameHookParam;
   position?: FramePosition;
+  isOverLimit?: boolean;
+  isDraggable?: boolean;
+  isResize?: boolean;
 }
 
 export interface FrameOptions extends OpenFrameOptions {
@@ -34,11 +37,13 @@ export interface FrameOptions extends OpenFrameOptions {
   close: Function;
   onError: Function;
   position?: FramePosition;
-  isOverLimit?: boolean;
 }
 
 export enum EventType {
   NORMAL = 0,
   DRAG_MOVE = 1,
-  RESIZE = 2,
+  RESIZE_TOP = 2,
+  RESIZE_LEFT = 3,
+  RESIZE_BOTTOM = 4,
+  RESIZE_RIGHT = 5,
 }

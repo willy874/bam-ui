@@ -84,7 +84,12 @@ export default defineComponent({
       const View = defineComponent(target?.view as object);
       return View ? (
         <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog}>
-          <View frame-id={frame.id} />
+          <View
+            class={{
+              'h-full w-full': frame.isResize,
+            }}
+            frame-id={frame.id}
+          />
         </ban-frame>
       ) : null;
     };
