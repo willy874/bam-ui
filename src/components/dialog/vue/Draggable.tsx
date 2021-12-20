@@ -1,4 +1,5 @@
 import { ref, defineComponent } from 'vue';
+import { FrameComponentType } from './types';
 import { EventType } from '../types';
 import { findFrame } from './utils';
 
@@ -22,36 +23,40 @@ export default defineComponent({
     /**
      * @Event
      */
-    const onDragstart = (e) => {
-      if (vm.value) {
-        const FrameComponent = findFrame(vm.value);
+    const onDragstart = (FrameComponent?: FrameComponentType) => {
+      return (e) => {
         if (FrameComponent) {
           FrameComponent.dialog.onDragstart(e, FrameComponent.frame, EventType.DRAG_MOVE);
         }
-      }
+      };
     };
-    const onTouchstart = (e) => {
-      if (vm.value) {
-        const FrameComponent = findFrame(vm.value);
+    const onTouchstart = (FrameComponent?: FrameComponentType) => {
+      return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame);
+          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, EventType.DRAG_MOVE);
         }
-      }
+      };
     };
 
     /**
      * @Render
      */
-    const render = () => (
-      <div class={{ 'cursor-move': true }} draggable={true} onDragstart={onDragstart} onTouchstart={onTouchstart}>
-        {context.slots.default && context.slots.default()}
-      </div>
-    );
-
     return (v) => {
       vm.value = v;
-
-      return render();
+      const FrameComponent = findFrame(v);
+      if (FrameComponent) {
+        return (
+          <div
+            class={{ 'cursor-move': FrameComponent.frame.isDraggable }}
+            draggable={true}
+            onDragstart={onDragstart(FrameComponent)}
+            onTouchstart={onTouchstart(FrameComponent)}
+          >
+            {context.slots.default && context.slots.default()}
+          </div>
+        );
+      }
+      return null;
     };
   },
 });

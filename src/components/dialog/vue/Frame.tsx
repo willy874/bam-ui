@@ -1,7 +1,9 @@
-import { ref, onMounted, onUpdated, onUnmounted, defineComponent, PropType } from 'vue';
-import { EventType } from '../types';
+import { ref, onMounted, onUpdated, onUnmounted, computed, defineComponent } from 'vue';
+import type { DefineComponent, PropType } from 'vue';
+// import { EventType } from '../types';
 import Dialog from '../core/dialog';
 import Frame from '../core/frame';
+import { getFrameData, getFrameMethods } from '../core/interface';
 import { getTransformStyleString } from '../utils';
 
 export default defineComponent({
@@ -12,13 +14,17 @@ export default defineComponent({
       type: Object as PropType<Dialog>,
       required: true,
     },
+    view: {
+      type: Object as PropType<DefineComponent>,
+      required: true,
+    },
     frame: {
       type: Object as PropType<Frame>,
       required: true,
     },
     zIndex: {
       type: Number,
-      default: 1,
+      default: 0,
     },
   },
 
@@ -28,9 +34,15 @@ export default defineComponent({
     /**
      * @Created
      */
-    if (props.dialog.isBackgroundMask && props.frame.hook.bgClick.length === 0) {
-      props.frame.on('bgClick', () => props.frame.onClose(props.dialog));
+    if (props.dialog.isBackgroundMask && props.frame.hook.bgclick.length === 0) {
+      props.frame.on('bgclick', () => props.frame.onClose(props.dialog));
     }
+
+    /**
+     * @Computed
+     */
+    const frameData = computed(() => getFrameData(props.frame));
+    const frameMethods = computed(() => getFrameMethods(props.frame));
 
     /**
      * @Event
@@ -46,64 +58,33 @@ export default defineComponent({
     /**
      * @Render
      */
-    const render = () => (
-      <div
-        ref={(e: Element) => props.frame.setFrameElement(e)}
-        class={{ 'absolute top-0 left-0 pointer-events-auto': true }}
-        style={{
-          zIndex: props.zIndex,
-          transform: getTransformStyleString({
-            translateX: props.frame.left,
-            translateY: props.frame.top,
-          }),
-          width: props.frame.width,
-          height: props.frame.height,
-        }}
-        onClick={(e) => e.stopPropagation()}
-        onMousedown={() => props.dialog.sortToRight(props.frame.id)}
-      >
-        <div
-          class={{
-            'absolute inset-0 overflow-auto': props.frame.width !== 'auto' && props.frame.height !== 'auto',
-          }}
-        >
-          {context.slots.default && context.slots.default()}
-        </div>
-        {props.frame.isResize ? (
-          <>
-            <div
-              class="absolute -top-2 left-0 right-0 h-4 cursor-ns-resize"
-              onClick={(e) => e.stopPropagation()}
-              draggable={true}
-              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_TOP)}
-            ></div>
-            <div
-              class="absolute -bottom-2 left-0 right-0 h-4 cursor-ns-resize"
-              onClick={(e) => e.stopPropagation()}
-              draggable={true}
-              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_BOTTOM)}
-            ></div>
-            <div
-              class="absolute -right-2 top-0 bottom-0 w-4 cursor-ew-resize"
-              onClick={(e) => e.stopPropagation()}
-              draggable={true}
-              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_RIGHT)}
-            ></div>
-            <div
-              class="absolute -left-2 top-0 bottom-0 w-4 cursor-ew-resize"
-              onClick={(e) => e.stopPropagation()}
-              draggable={true}
-              onDragstart={(e) => props.dialog.onDragstart(e, props.frame, EventType.RESIZE_LEFT)}
-            ></div>
-          </>
-        ) : null}
-      </div>
-    );
-
     return (v) => {
       vm.value = v;
-
-      return render();
+      const View = props.view;
+      return (
+        <div
+          ref={(e: Element) => props.frame.setFrameElement(e)}
+          class={{ 'absolute top-0 left-0 pointer-events-auto': true }}
+          style={{
+            zIndex: props.zIndex,
+            transform: getTransformStyleString({
+              translateX: props.frame.left,
+              translateY: props.frame.top,
+            }),
+            width: props.frame.width,
+            height: props.frame.height,
+          }}
+          onClick={(e) => e.stopPropagation()}
+          onMousedown={() => props.dialog.sortToRight(props.frame.id)}
+        >
+          <View
+            class="h-full w-full"
+            frame-data={frameData}
+            frame-methods={frameMethods}
+            frame-props={props.frame.props}
+          />
+        </div>
+      );
     };
   },
 });

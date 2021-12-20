@@ -1,5 +1,5 @@
 import { reactive } from 'vue';
-import type { DialogOptions } from '../types';
+import type { DialogOptions, FrameData, FrameMethods } from '../types';
 import {
   createDialog as createDialogNative,
   useDialog as useDialogNative,
@@ -9,11 +9,12 @@ import Dialog from '../core/dialog';
 import Frame from '../core/frame';
 import VueDialog from '../vue/Dialog';
 import FrameDraggable from '../vue/Draggable';
+import FrameResize from '../vue/Resize';
 
 /**
  * types
  */
-export { DialogOptions };
+export { DialogOptions, FrameData, FrameMethods };
 
 /**
  * class
@@ -23,7 +24,7 @@ export { Dialog, Frame };
 /**
  * component
  */
-export { VueDialog, FrameDraggable };
+export { VueDialog, FrameDraggable, FrameResize };
 
 /**
  *

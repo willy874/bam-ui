@@ -116,6 +116,7 @@
   "i18n-ally.enabledFrameworks": ["vue", "react"],
   "cSpell.words": [
     "antv",
+    "bgclick",
     "brotli",
     "browserslist",
     "codemirror",

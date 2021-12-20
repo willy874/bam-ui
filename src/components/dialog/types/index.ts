@@ -2,7 +2,7 @@ export interface DialogHookParam {
   mount: Function;
   unmount: Function;
   update: Function;
-  resize: Function;
+  bgclick: Function;
 }
 
 export interface DialogOptions {
@@ -15,9 +15,13 @@ export interface FrameHookParam {
   mount?: Function;
   unmount?: Function;
   update?: Function;
-  bgClick?: Function;
+  bgclick?: Function;
   dragstart?: Function;
+  dragover?: Function;
+  dragend?: Function;
   touchstart?: Function;
+  touchmove?: Function;
+  touchend?: Function;
 }
 
 export type FramePosition = 'auto' | 'center' | { top: number | string; left: number | string };
@@ -29,7 +33,9 @@ export interface OpenFrameOptions {
   position?: FramePosition;
   isOverLimit?: boolean;
   isDraggable?: boolean;
-  isResize?: boolean;
+  isResizable?: boolean;
+  width?: string;
+  height?: string;
 }
 
 export interface FrameOptions extends OpenFrameOptions {
@@ -46,4 +52,31 @@ export enum EventType {
   RESIZE_LEFT = 3,
   RESIZE_BOTTOM = 4,
   RESIZE_RIGHT = 5,
+}
+
+export interface PagePosition {
+  pageX: number;
+  pageY: number;
+}
+
+export interface FrameMethods {
+  setResizable: (bool: boolean) => unknown;
+  setDraggable: (bool: boolean) => unknown;
+  setOverLimit: (bool: boolean) => unknown;
+  setPosition: (position: FramePosition) => unknown;
+  setBoxSize: () => unknown;
+  on: (type: string, callback: Function) => unknown;
+  off: (type: string, callback: Function) => unknown;
+}
+
+export interface FrameData {
+  id: symbol;
+  dialogId: symbol;
+  element: Element | null;
+  top: string;
+  left: string;
+  width: string | number;
+  height: string | number;
+  mouseOffsetX: number;
+  mouseOffsetY: number;
 }

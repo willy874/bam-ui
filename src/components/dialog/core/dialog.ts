@@ -1,14 +1,14 @@
 import { DialogOptions, OpenFrameOptions, EventType } from '../types';
-import { DialogBackgroundClickEvent, DialogDragEvent, DialogTouchEvent } from './event';
+import { DialogDragEvent, DialogTouchEvent } from './event';
 import Frame from './frame';
 import { getViewportOffset, clearDragImage } from '../utils';
 import { createFrame } from './control';
 
 type GetFrameParam = Frame | number | symbol;
 
-const dialogHooks = 'mount,unmount,update,resize,dragover'.split(',');
+const dialogHooks = 'mount,unmount,update,bgclick'.split(',');
 
-class Dialog {
+export default class Dialog {
   public readonly id: symbol;
   public readonly frames: Frame[] = [];
   public focusFrame: Frame | null = null;
@@ -72,14 +72,12 @@ class Dialog {
   }
 
   onMount(...args: any[]) {
-    window.addEventListener('resize', (e: Event) => this.onResize(e));
     this.hook.mount.forEach((event) => {
       event.apply(this, args);
     });
   }
 
   onUnmount(...args: any[]) {
-    window.removeEventListener('resize', (e: Event) => this.onResize(e));
     this.element = null;
     this.hook.unmount.forEach((event) => {
       event.apply(this, args);
@@ -93,23 +91,21 @@ class Dialog {
   }
 
   onResize(e: Event) {
-    this.hook.resize.forEach((event) => {
-      event.apply(this, e);
+    [...this.frames].forEach((frame) => {
+      frame.onResize(e);
     });
   }
 
-  onBgClick(e: PointerEvent) {
+  onBgclick(e: PointerEvent) {
     if (this.element && e.target instanceof Node && this.element.contains(e.target)) {
+      this.hook.bgclick.forEach((event) => {
+        event.apply(this, e);
+      });
       /** 過程中拔除會再成無法正常迴圈，要另外建立陣列紀錄 **/
       [...this.frames].forEach((f) => {
-        if (f.hook?.bgClick) {
-          const bgClickEvent = new DialogBackgroundClickEvent({
-            event: e,
-            dialog: this,
-            frame: f,
-          });
-          f.hook.bgClick.forEach((event) => {
-            event.apply(f, bgClickEvent);
+        if (f.hook?.bgclick) {
+          f.hook.bgclick.forEach((event) => {
+            event.apply(f, e);
           });
         }
       });
@@ -138,19 +134,19 @@ class Dialog {
     }
   }
 
-  onTouchstart(event: TouchEvent, id: GetFrameParam) {
+  onTouchstart(event: TouchEvent, id: GetFrameParam, type: EventType) {
     const frame = this.getFrame(id);
     if (frame) {
       this.touches = Array.from(event.touches);
       /** 單一觸控點時 **/
-      if (frame.element && this.touches.length === 1) {
+      if (frame.element && type === EventType.DRAG_MOVE) {
         /** 觸控點相對於視窗的座標 **/
         const touch = this.touches[0];
         const viewPort = getViewportOffset(frame.element);
         frame.mouseOffsetX = touch.pageX - viewPort.left;
         frame.mouseOffsetY = touch.pageY - viewPort.top;
         this.focusFrame = frame;
-        this.eventType = EventType.DRAG_MOVE;
+        this.eventType = type;
       }
       frame.onTouchstart(
         new DialogTouchEvent({
@@ -181,13 +177,13 @@ class Dialog {
         frame.onDragresize(pos, this.eventType);
       }
 
-      // frame.onDragover(
-      //   new DialogDragEvent({
-      //     event,
-      //     dialog: this,
-      //     frame: frame,
-      //   }),
-      // );
+      frame.onDragover(
+        new DialogDragEvent({
+          event,
+          dialog: this,
+          frame: frame,
+        }),
+      );
     }
   }
 
@@ -202,13 +198,13 @@ class Dialog {
           pageY: touch.pageY,
         });
       }
-      // frame.onTouchmove(
-      //   new DialogTouchEvent({
-      //     event,
-      //     dialog: this,
-      //     frame: frame,
-      //   }),
-      // );
+      frame.onTouchmove(
+        new DialogTouchEvent({
+          event,
+          dialog: this,
+          frame: frame,
+        }),
+      );
     }
   }
 
@@ -218,13 +214,13 @@ class Dialog {
       this.eventType = EventType.NORMAL;
       frame.mouseOffsetX = 0;
       frame.mouseOffsetY = 0;
-      // frame.onDragend(
-      //   new DialogTouchEvent({
-      //     event,
-      //     dialog: this,
-      //     frame: frame,
-      //   }),
-      // );
+      frame.onDragend(
+        new DialogDragEvent({
+          event,
+          dialog: this,
+          frame: frame,
+        }),
+      );
     }
   }
 
@@ -237,13 +233,13 @@ class Dialog {
         frame.mouseOffsetX = 0;
         frame.mouseOffsetY = 0;
       }
-      // frame.onTouchend(
-      //   new DialogTouchEvent({
-      //     event,
-      //     dialog: this,
-      //     frame: frame,
-      //   }),
-      // );
+      frame.onTouchend(
+        new DialogTouchEvent({
+          event,
+          dialog: this,
+          frame: frame,
+        }),
+      );
     }
   }
 
@@ -318,5 +314,3 @@ class Dialog {
     }
   }
 }
-
-export default Dialog;

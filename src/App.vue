@@ -1,16 +1,28 @@
 <script setup lang="tsx">
-// import 'virtual:windi.css'
+import { ref } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
-import { VueDialog, useDialog, FrameDraggable } from './components/dialog/vue'
+import { VueDialog, useDialog, FrameDraggable, FrameResize } from './components/dialog/vue'
 
 const onOpenDialog = async () => {
   const dialog = useDialog()
+  const text = ref('123')
+  setTimeout(() => {
+    text.value = 'HelloHelloHelloHelloHelloHelloHelloHelloHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello '
+  }, 3000)
 
   const view = {
     props: {
-      frameId: {
-        type: Symbol,
+      frameData: {
+        type: Object,
         required: true
+      },
+      frameMethods: {
+        type: Object,
+        required: true
+      },
+      frameProps: {
+        type: Object,
+        default: () => ({})
       }
     },
     setup(props) {
@@ -19,15 +31,24 @@ const onOpenDialog = async () => {
         <div
           style={{
             background: '#fff',
-            padding: '4rem',
             border: '1px solid #000'
           }}
         >
-          <button onClick={() => dialog.closeFrame(props.frameId)}>關閉</button>
-          <div class="py-2"></div>
-          <button type="button" onClick={() => d.openFrame({ view })}>打開</button>
-          <div class="py-2"></div>
-          <FrameDraggable>拖拉</FrameDraggable>
+          <FrameResize>
+            <div
+              style={{
+                padding: '4rem',
+              }}
+            >
+              <button onClick={() => dialog.closeFrame(props.frameData.id)}>關閉</button>
+              <div class="py-2"></div>
+              <button type="button" onClick={() => d.openFrame({ view })}>打開</button>
+              <div class="py-2"></div>
+              <FrameDraggable>拖拉</FrameDraggable>
+              <div class="py-2"></div>
+              <div>{text.value}</div>
+            </div>
+          </FrameResize>
         </div>
       )
     }

@@ -1,4 +1,4 @@
-import { ref, reactive, computed, onMounted, onUpdated, onUnmounted, defineComponent } from 'vue';
+import { ref, reactive, computed, onMounted, onUpdated, onUnmounted, defineComponent, markRaw } from 'vue';
 import Frame from '../core/frame';
 import FrameComponent from './Frame';
 import { createDialog } from '../core/control';
@@ -36,7 +36,7 @@ export default defineComponent({
         mount: (...args: any[]) => context.emit('mount', ...args),
         unmount: (...args: any[]) => context.emit('unmount', ...args),
         update: (...args: any[]) => context.emit('update', ...args),
-        resize: (...args: any[]) => context.emit('resize', ...args),
+        bgclick: (...args: any[]) => context.emit('bgclick', ...args),
       },
     });
     const dialog = reactive(native);
@@ -48,12 +48,14 @@ export default defineComponent({
 
     /**
      * @Event
+     * 使用 Proxy 綁定事件
      */
-    const onClick = (e: PointerEvent) => dialog.onBgClick(e);
+    const onClick = (e: PointerEvent) => dialog.onBgclick(e);
     const onDragover = (e: DragEvent) => dialog.onDragover(e);
     const onDragend = (e: DragEvent) => dialog.onDragend(e);
     const onTouchmove = (e: TouchEvent) => dialog.onTouchmove(e);
     const onTouchend = (e: TouchEvent) => dialog.onTouchend(e);
+    const onResize = (e: Event) => dialog.onResize(e);
 
     /**
      * @Lifecycle
@@ -65,6 +67,7 @@ export default defineComponent({
       document.body.addEventListener('dragend', onDragend);
       document.body.addEventListener('touchmove', onTouchmove);
       document.body.addEventListener('touchend', onTouchend);
+      window.addEventListener('resize', onResize);
     });
     onUpdated(() => dialog.onUpdate(vm.value));
     onUnmounted(() => {
@@ -74,44 +77,33 @@ export default defineComponent({
       document.body.removeEventListener('dragend', onDragend);
       document.body.removeEventListener('touchmove', onTouchmove);
       document.body.removeEventListener('touchend', onTouchend);
+      window.removeEventListener('resize', onResize);
     });
 
     /**
      * @Render
      */
-    const renderFrameItem = (frame: Frame, index: number) => {
-      const target = native.getFrame(frame.id);
-      const View = defineComponent(target?.view as object);
-      return View ? (
-        <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog}>
-          <View
-            class={{
-              'h-full w-full': frame.isResize,
-            }}
-            frame-id={frame.id}
-          />
-        </ban-frame>
-      ) : null;
-    };
-    const render = () => (
-      <div
-        ref={(e: Element) => dialog.setRootElement(e)}
-        class={{
-          'fixed inset-0': true,
-          'pointer-events-auto': isBackgroundMask.value,
-          'pointer-events-none': !isBackgroundMask.value,
-          'opacity-0': !dialog.frames.length,
-        }}
-      >
-        <div class="absolute inset-0" style={{ background: props.backgroundMask }}></div>
-        {dialog.frames.map(renderFrameItem)}
-      </div>
-    );
-
     return (v) => {
       vm.value = v;
 
-      return render();
+      return (
+        <div
+          ref={(e: Element) => dialog.setRootElement(e)}
+          class={{
+            'fixed inset-0': true,
+            'pointer-events-auto': isBackgroundMask.value,
+            'pointer-events-none': !isBackgroundMask.value,
+            'opacity-0': !dialog.frames.length,
+          }}
+        >
+          <div class="absolute inset-0" style={{ background: props.backgroundMask }}></div>
+          {dialog.frames.map((frame: Frame, index: number) => {
+            const target = native.getFrame(frame.id);
+            const View = markRaw(defineComponent(target?.view as object));
+            return View ? <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog} view={View} /> : null;
+          })}
+        </div>
+      );
     };
   },
 });

@@ -84,17 +84,17 @@ export interface TransformStyle {
 
 export function getTransformStyleString(transform: TransformStyle) {
   return `
-  rotate(${conditionData(transform.rotate, 0)})
-  rotateX(${conditionData(transform.rotateX, 0)})
-  rotateY(${conditionData(transform.rotateY, 0)})
-  rotateZ(${conditionData(transform.rotateZ, 0)})
-  scaleX(${conditionData(transform.scaleX, 1)})
-  scaleY(${conditionData(transform.scaleY, 1)})
-  scaleZ(${conditionData(transform.scaleZ, 1)})
-  skewX(${conditionData(transform.skewX, 0)})
-  skewY(${conditionData(transform.skewY, 0)})
-  translateX(${conditionData(transform.translateX, 0)})
-  translateY(${conditionData(transform.translateY, 0)})
-  translateZ(${conditionData(transform.translateZ, 0)})
+  ${transform.rotate === undefined ? '' : `rotate(${conditionData(transform.rotate, 0)})`}
+  ${transform.rotateX === undefined ? '' : `rotateX(${conditionData(transform.rotateX, 0)})`}
+  ${transform.rotateY === undefined ? '' : `rotateY(${conditionData(transform.rotateY, 0)})`}
+  ${transform.rotateZ === undefined ? '' : `rotateZ(${conditionData(transform.rotateZ, 0)})`}
+  ${transform.scaleX === undefined ? '' : `scaleX(${conditionData(transform.scaleX, 1)})`}
+  ${transform.scaleY === undefined ? '' : `scaleY(${conditionData(transform.scaleY, 1)})`}
+  ${transform.scaleZ === undefined ? '' : `scaleZ(${conditionData(transform.scaleZ, 1)})`}
+  ${transform.skewX === undefined ? '' : `skewX(${conditionData(transform.skewX, 0)})`}
+  ${transform.skewY === undefined ? '' : `skewY(${conditionData(transform.skewY, 0)})`}
+  ${transform.translateX === undefined ? '' : `translateX(${conditionData(transform.translateX, 0)})`}
+  ${transform.translateY === undefined ? '' : `translateY(${conditionData(transform.translateY, 0)})`}
+  ${transform.translateZ === undefined ? '' : `translateZ(${conditionData(transform.translateZ, 0)})`}
   `;
 }
