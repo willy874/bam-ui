@@ -34,6 +34,7 @@ export interface OpenFrameOptions {
   isOverLimit?: boolean;
   isDraggable?: boolean;
   isResizable?: boolean;
+  isFull?: boolean;
   width?: string;
   height?: string;
 }
@@ -63,6 +64,7 @@ export interface FrameMethods {
   setResizable: (bool: boolean) => unknown;
   setDraggable: (bool: boolean) => unknown;
   setOverLimit: (bool: boolean) => unknown;
+  setFull: (bool: boolean) => unknown;
   setPosition: (position: FramePosition) => unknown;
   setBoxSize: () => unknown;
   on: (type: string, callback: Function) => unknown;
@@ -79,4 +81,8 @@ export interface FrameData {
   height: string | number;
   mouseOffsetX: number;
   mouseOffsetY: number;
+  isOverLimit: boolean;
+  isDraggable: boolean;
+  isResizable: boolean;
+  isFull: boolean;
 }

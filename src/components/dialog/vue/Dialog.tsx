@@ -1,4 +1,14 @@
-import { ref, reactive, computed, onMounted, onUpdated, onUnmounted, defineComponent, markRaw } from 'vue';
+import {
+  ref,
+  reactive,
+  computed,
+  onMounted,
+  onUpdated,
+  onUnmounted,
+  defineComponent,
+  getCurrentInstance,
+  markRaw,
+} from 'vue';
 import Frame from '../core/frame';
 import FrameComponent from './Frame';
 import { createDialog } from '../core/control';
@@ -23,23 +33,27 @@ export default defineComponent({
     },
   },
 
-  setup(props, context) {
+  setup(props, { emit, expose }) {
+    const instance = getCurrentInstance();
     /**
      * @Data
      */
     const id = ref(Symbol(props.name));
-    const vm = ref(null);
     const native = createDialog({
       id: id.value,
       isBackgroundMask: props.isBackgroundMask,
       hook: {
-        mount: (...args: any[]) => context.emit('mount', ...args),
-        unmount: (...args: any[]) => context.emit('unmount', ...args),
-        update: (...args: any[]) => context.emit('update', ...args),
-        bgclick: (...args: any[]) => context.emit('bgclick', ...args),
+        mount: (...args: any[]) => emit('mount', ...args),
+        unmount: (...args: any[]) => emit('unmount', ...args),
+        update: (...args: any[]) => emit('update', ...args),
+        bgclick: (...args: any[]) => emit('bgclick', ...args),
       },
     });
     const dialog = reactive(native);
+    expose({
+      id,
+      dialog,
+    });
 
     /**
      * @Create
@@ -61,7 +75,7 @@ export default defineComponent({
      * @Lifecycle
      */
     onMounted(() => {
-      dialog.onMount(vm.value);
+      dialog.onMount(instance);
       document.body.addEventListener('click', onClick);
       document.body.addEventListener('dragover', onDragover);
       document.body.addEventListener('dragend', onDragend);
@@ -69,9 +83,9 @@ export default defineComponent({
       document.body.addEventListener('touchend', onTouchend);
       window.addEventListener('resize', onResize);
     });
-    onUpdated(() => dialog.onUpdate(vm.value));
+    onUpdated(() => dialog.onUpdate(instance));
     onUnmounted(() => {
-      dialog.onUnmount(vm.value);
+      dialog.onUnmount(instance);
       document.body.removeEventListener('click', onClick);
       document.body.removeEventListener('dragover', onDragover);
       document.body.removeEventListener('dragend', onDragend);
@@ -83,27 +97,23 @@ export default defineComponent({
     /**
      * @Render
      */
-    return (v) => {
-      vm.value = v;
-
-      return (
-        <div
-          ref={(e: Element) => dialog.setRootElement(e)}
-          class={{
-            'fixed inset-0': true,
-            'pointer-events-auto': isBackgroundMask.value,
-            'pointer-events-none': !isBackgroundMask.value,
-            'opacity-0': !dialog.frames.length,
-          }}
-        >
-          <div class="absolute inset-0" style={{ background: props.backgroundMask }}></div>
-          {dialog.frames.map((frame: Frame, index: number) => {
-            const target = native.getFrame(frame.id);
-            const View = markRaw(defineComponent(target?.view as object));
-            return View ? <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog} view={View} /> : null;
-          })}
-        </div>
-      );
-    };
+    return () => (
+      <div
+        ref={(e: Element) => dialog.setRootElement(e)}
+        class={{
+          'fixed inset-0': true,
+          'pointer-events-auto': isBackgroundMask.value,
+          'pointer-events-none': !isBackgroundMask.value,
+          'opacity-0': !dialog.frames.length,
+        }}
+      >
+        <div class="absolute inset-0" style={{ background: props.backgroundMask }}></div>
+        {dialog.frames.map((frame: Frame, index: number) => {
+          const target = native.getFrame(frame.id);
+          const View = markRaw(defineComponent(target?.view as object));
+          return View ? <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog} view={View} /> : null;
+        })}
+      </div>
+    );
   },
 });

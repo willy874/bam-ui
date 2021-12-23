@@ -1,6 +1,5 @@
 import { FrameOptions, FramePosition, PagePosition, EventType } from '../types';
 import type Dialog from './dialog';
-import type { DialogDragEvent, DialogTouchEvent } from './event';
 import { useDialog } from './control';
 import { getViewportOffset } from '../utils';
 
@@ -16,6 +15,7 @@ export default class Frame {
   isOverLimit: boolean;
   isDraggable: boolean;
   isResizable: boolean;
+  isFull: boolean = false;
   position: FramePosition;
   element: Element | null = null;
   top: string = '0px';
@@ -42,6 +42,7 @@ export default class Frame {
     this.isOverLimit = args.isOverLimit === false ? false : true;
     this.isDraggable = args.isDraggable === false ? false : true;
     this.isResizable = args.isResizable === false ? false : true;
+    this.isFull = args.isFull || false;
     this.position = args.position || 'auto';
     this.width = typeof args.width === 'number' ? args.width + 'px' : args.width || 'auto';
     this.height = typeof args.height === 'number' ? args.height + 'px' : args.height || 'auto';
@@ -83,6 +84,10 @@ export default class Frame {
 
   setOverLimit(bool: boolean) {
     this.isOverLimit = bool;
+  }
+
+  setFull(bool: boolean) {
+    this.isFull = bool;
   }
 
   setPosition(position: FramePosition) {
@@ -203,19 +208,20 @@ export default class Frame {
     this.setBoxSize();
   }
 
-  onDragstart(e: DialogDragEvent) {
+  onDragstart(...args: any[]) {
     this.hook.update.forEach((event) => {
-      event.call(this, e);
+      event.apply(this, args);
     });
   }
 
-  onTouchstart(e: DialogTouchEvent) {
+  onTouchstart(...args: any[]) {
     this.hook.touchstart.forEach((event) => {
-      event.call(this, e);
+      event.apply(this, args);
     });
   }
 
   onDragmove(pos: PagePosition) {
+    this.isFull = false;
     if (this.element && this.isDraggable) {
       this.isDragged = true;
       const position = { top: this.top, left: this.left };
@@ -246,6 +252,7 @@ export default class Frame {
   }
 
   onDragresize(pos: PagePosition, type: EventType) {
+    this.isFull = false;
     if (this.element && this.isResizable) {
       this.isResized = true;
       const elementClientWidth = this.element.clientWidth;

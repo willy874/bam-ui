@@ -1,7 +1,8 @@
-import { ref, defineComponent } from 'vue';
-import { FrameComponentType } from './types';
+import { defineComponent } from 'vue';
+import { FrameComponentInstance } from './types';
 import { EventType } from '../types';
-import { findFrame } from './utils';
+import { findParentComponent } from './utils';
+import Frame from './Frame';
 
 export default defineComponent({
   name: 'bam-frame-resize',
@@ -14,8 +15,6 @@ export default defineComponent({
   },
 
   setup(props, context) {
-    const vm = ref(null);
-
     /**
      * @Created
      */
@@ -23,14 +22,14 @@ export default defineComponent({
     /**
      * @Event
      */
-    const onDragstart = (FrameComponent: FrameComponentType, type: EventType) => {
+    const onDragstart = (FrameComponent: FrameComponentInstance, type: EventType) => {
       return (e) => {
         if (FrameComponent) {
           FrameComponent.dialog.onDragstart(e, FrameComponent.frame, type);
         }
       };
     };
-    const onTouchstart = (FrameComponent: FrameComponentType, type: EventType) => {
+    const onTouchstart = (FrameComponent: FrameComponentInstance, type: EventType) => {
       return (e) => {
         if (FrameComponent) {
           FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, type);
@@ -38,12 +37,11 @@ export default defineComponent({
       };
     };
 
+    const FrameComponent = findParentComponent<FrameComponentInstance>(Frame);
     /**
      * @Render
      */
-    return (v) => {
-      vm.value = v;
-      const FrameComponent = findFrame(v);
+    return () => {
       if (FrameComponent) {
         return (
           <>

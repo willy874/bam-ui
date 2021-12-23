@@ -6,6 +6,7 @@ export function getFrameMethods(frame: Frame): FrameMethods {
     setResizable: (bool: boolean) => frame.setResizable(bool),
     setDraggable: (bool: boolean) => frame.setDraggable(bool),
     setOverLimit: (bool: boolean) => frame.setOverLimit(bool),
+    setFull: (bool: boolean) => frame.setFull(bool),
     setPosition: (position: FramePosition) => frame.setPosition(position),
     setBoxSize: () => frame.setBoxSize(),
     on: (type: string, callback: Function) => frame.on(type, callback),
@@ -24,5 +25,9 @@ export function getFrameData(frame: Frame): FrameData {
     height: frame.height,
     mouseOffsetX: frame.mouseOffsetX,
     mouseOffsetY: frame.mouseOffsetY,
+    isOverLimit: frame.isOverLimit,
+    isDraggable: frame.isDraggable,
+    isResizable: frame.isResizable,
+    isFull: frame.isFull,
   };
 }

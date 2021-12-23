@@ -1,14 +1,13 @@
-import { ref, onMounted, onUpdated, onUnmounted, computed, defineComponent } from 'vue';
+import { onMounted, onUpdated, onUnmounted, computed, defineComponent, getCurrentInstance } from 'vue';
 import type { DefineComponent, PropType } from 'vue';
-// import { EventType } from '../types';
 import Dialog from '../core/dialog';
 import Frame from '../core/frame';
 import { getFrameData, getFrameMethods } from '../core/interface';
 import { getTransformStyleString } from '../utils';
+import { FrameComponentOptions } from './types';
 
 export default defineComponent({
   name: 'bam-frame',
-
   props: {
     dialog: {
       type: Object as PropType<Dialog>,
@@ -28,8 +27,13 @@ export default defineComponent({
     },
   },
 
-  setup(props, context) {
-    const vm = ref(null);
+  setup(props, { expose }) {
+    const instance = getCurrentInstance();
+
+    /**
+     * @Data
+     */
+    expose({});
 
     /**
      * @Created
@@ -51,40 +55,37 @@ export default defineComponent({
     /**
      * @Lifecycle
      */
-    onMounted(() => props.frame.onMount(vm.value));
-    onUpdated(() => props.frame.onUpdate(vm.value));
-    onUnmounted(() => props.frame.onUnmount(vm.value));
+    onMounted(() => props.frame.onMount(instance));
+    onUpdated(() => props.frame.onUpdate(instance));
+    onUnmounted(() => props.frame.onUnmount(instance));
 
     /**
      * @Render
      */
-    return (v) => {
-      vm.value = v;
-      const View = props.view;
-      return (
-        <div
-          ref={(e: Element) => props.frame.setFrameElement(e)}
-          class={{ 'absolute top-0 left-0 pointer-events-auto': true }}
-          style={{
-            zIndex: props.zIndex,
-            transform: getTransformStyleString({
-              translateX: props.frame.left,
-              translateY: props.frame.top,
-            }),
-            width: props.frame.width,
-            height: props.frame.height,
-          }}
-          onClick={(e) => e.stopPropagation()}
-          onMousedown={() => props.dialog.sortToRight(props.frame.id)}
-        >
-          <View
-            class="h-full w-full"
-            frame-data={frameData}
-            frame-methods={frameMethods}
-            frame-props={props.frame.props}
-          />
-        </div>
-      );
-    };
+    const View = props.view;
+    return () => (
+      <div
+        ref={(e: Element) => props.frame.setFrameElement(e)}
+        class={{ 'absolute top-0 left-0 pointer-events-auto': true }}
+        style={{
+          zIndex: props.zIndex,
+          transform: getTransformStyleString({
+            translateX: props.frame.isFull ? '0' : props.frame.left,
+            translateY: props.frame.isFull ? '0' : props.frame.top,
+          }),
+          width: props.frame.isFull ? '100vw' : props.frame.width,
+          height: props.frame.isFull ? '100vh' : props.frame.height,
+        }}
+        onClick={(e) => e.stopPropagation()}
+        onMousedown={() => props.dialog.sortToRight(props.frame.id)}
+      >
+        <View
+          class="h-full w-full"
+          frame-data={frameData.value}
+          frame-methods={frameMethods.value}
+          frame-props={props.frame.props}
+        />
+      </div>
+    );
   },
-});
+}) as FrameComponentOptions;

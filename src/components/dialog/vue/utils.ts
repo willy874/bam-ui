@@ -1,19 +1,15 @@
-import type { ComponentPublicInstance } from 'vue';
-import type { FrameComponentType } from './types';
-import FrameComponent from './Frame';
+import { getCurrentInstance, DefineComponent, ComponentInternalInstance, ComponentPublicInstance } from 'vue';
 
-type ComponentPaths = ComponentPublicInstance[];
-
-function recursionParent(paths: ComponentPaths, vm: ComponentPublicInstance) {
+function recursionParent(paths: ComponentInternalInstance[], vm: ComponentInternalInstance) {
   paths.push(vm);
-  if (vm.$parent) {
-    return recursionParent(paths, vm.$parent);
+  if (vm.parent) {
+    return recursionParent(paths, vm.parent);
   } else {
     return paths;
   }
 }
 
-export function getComponentPaths(vm?: ComponentPublicInstance): ComponentPaths {
+export function getComponentPaths(vm?: ComponentInternalInstance): ComponentInternalInstance[] {
   const paths = [];
   if (vm) {
     return recursionParent(paths, vm);
@@ -21,9 +17,17 @@ export function getComponentPaths(vm?: ComponentPublicInstance): ComponentPaths 
   return [];
 }
 
-export function findFrame(vm?: ComponentPublicInstance) {
-  if (vm) {
-    const paths = getComponentPaths(vm);
-    return (paths.find((vm) => vm.$options === FrameComponent) as FrameComponentType) || undefined;
+export function findParentComponent<T = ComponentPublicInstance>(component: DefineComponent) {
+  const instance = getCurrentInstance();
+  if (instance) {
+    const paths = getComponentPaths(instance);
+    for (const vm of paths) {
+      if (!vm.type.name && !component.name) {
+        return;
+      }
+      if (vm.type.name === component.name) {
+        return vm.proxy as unknown as T;
+      }
+    }
   }
 }

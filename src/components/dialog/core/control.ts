@@ -51,38 +51,3 @@ export function useFrameRender(id?: symbol) {
     return useFrame(lastRenderFrameId);
   }
 }
-
-/**
- * 渲染順序
- */
-// type DialogRender = Dialog | Frame;
-// const dialogRenderList: DialogRender[] = [];
-// const renderCache: DialogRender[] = [];
-// let isSetup = false;
-// let renderIndex = 0;
-// export function useRender(entity: Dialog | Frame) {
-//   if (isSetup) {
-//     const indexOf = dialogRenderList.indexOf(entity);
-//     if (indexOf > -1) {
-//       // Includes
-//       renderIndex = indexOf;
-//       if (renderIndex === 0) {
-//         // First
-//         renderCache.splice(0);
-//       } else if (renderIndex === dialogRenderList.length - 1) {
-//         // Last
-//         const insertList = dialogRenderList.filter((p) => !renderCache.includes(p));
-//         insertList.forEach((target) => {
-//           const index = dialogRenderList.indexOf(target);
-//           dialogRenderList.splice(index, 1);
-//         });
-//       }
-//     } else {
-//       // Empty
-//       dialogRenderList.splice(renderIndex, 0, entity);
-//     }
-//   } else {
-//     isSetup = true;
-//     dialogRenderList.push(entity);
-//   }
-// }

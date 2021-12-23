@@ -1,23 +1,20 @@
 <script setup lang="tsx">
-import { ref } from 'vue'
+import { ref, PropType } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
-import { VueDialog, useDialog, FrameDraggable, FrameResize } from './components/dialog/vue'
+import { VueDialog, useDialog, FrameDraggable, FrameResize, FrameMethods, FrameData } from './components/dialog/vue'
 
 const onOpenDialog = async () => {
   const dialog = useDialog()
-  const text = ref('123')
-  setTimeout(() => {
-    text.value = 'HelloHelloHelloHelloHelloHelloHelloHelloHello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello '
-  }, 3000)
+  const text = ref('測試巴拉巴拉')
 
   const view = {
     props: {
       frameData: {
-        type: Object,
+        type: Object as PropType<FrameData>,
         required: true
       },
       frameMethods: {
-        type: Object,
+        type: Object as PropType<FrameMethods>,
         required: true
       },
       frameProps: {
@@ -27,6 +24,8 @@ const onOpenDialog = async () => {
     },
     setup(props) {
       const d = useDialog()
+      console.log(props);
+      
       return () => (
         <div
           style={{
@@ -43,6 +42,8 @@ const onOpenDialog = async () => {
               <button onClick={() => dialog.closeFrame(props.frameData.id)}>關閉</button>
               <div class="py-2"></div>
               <button type="button" onClick={() => d.openFrame({ view })}>打開</button>
+              <div class="py-2"></div>
+              <button type="button" onClick={() => props.frameMethods.setFull(!props.frameData.isFull)}>全畫面</button>
               <div class="py-2"></div>
               <FrameDraggable>拖拉</FrameDraggable>
               <div class="py-2"></div>

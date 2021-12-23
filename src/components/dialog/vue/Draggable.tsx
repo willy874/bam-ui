@@ -1,7 +1,8 @@
-import { ref, defineComponent } from 'vue';
-import { FrameComponentType } from './types';
+import { defineComponent } from 'vue';
+import { FrameComponentInstance } from './types';
 import { EventType } from '../types';
-import { findFrame } from './utils';
+import { findParentComponent } from './utils';
+import Frame from './Frame';
 
 export default defineComponent({
   name: 'bam-frame-draggable',
@@ -14,8 +15,6 @@ export default defineComponent({
   },
 
   setup(props, context) {
-    const vm = ref(null);
-
     /**
      * @Created
      */
@@ -23,14 +22,14 @@ export default defineComponent({
     /**
      * @Event
      */
-    const onDragstart = (FrameComponent?: FrameComponentType) => {
+    const onDragstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
           FrameComponent.dialog.onDragstart(e, FrameComponent.frame, EventType.DRAG_MOVE);
         }
       };
     };
-    const onTouchstart = (FrameComponent?: FrameComponentType) => {
+    const onTouchstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
           FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, EventType.DRAG_MOVE);
@@ -38,12 +37,11 @@ export default defineComponent({
       };
     };
 
+    const FrameComponent = findParentComponent<FrameComponentInstance>(Frame);
     /**
      * @Render
      */
-    return (v) => {
-      vm.value = v;
-      const FrameComponent = findFrame(v);
+    return () => {
       if (FrameComponent) {
         return (
           <div

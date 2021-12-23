@@ -1,5 +1,4 @@
 import { DialogOptions, OpenFrameOptions, EventType } from '../types';
-import { DialogDragEvent, DialogTouchEvent } from './event';
 import Frame from './frame';
 import { getViewportOffset, clearDragImage } from '../utils';
 import { createFrame } from './control';
@@ -15,6 +14,7 @@ export default class Dialog {
   public eventType: EventType = EventType.NORMAL;
   public element: Element | null = null;
   public touches: Touch[] = [];
+  public prevTouches: Touch[] = [];
   public isBackgroundMask: boolean;
   private hook: {
     [type: string]: Function[];
@@ -117,18 +117,12 @@ export default class Dialog {
     if (frame && frame.element && event.dataTransfer) {
       clearDragImage(event);
       this.focusFrame = frame;
-      this.eventType = type;
       /** 紀錄滑鼠相對於視窗的座標 **/
       const viewPort = getViewportOffset(frame.element);
       frame.mouseOffsetX = event.pageX - viewPort.left;
       frame.mouseOffsetY = event.pageY - viewPort.top;
-      frame.onDragstart(
-        new DialogDragEvent({
-          event,
-          dialog: this,
-          frame: frame,
-        }),
-      );
+      this.eventType = type;
+      frame.onDragstart(event);
     } else {
       console.warn('not element or event not dataTransfer target');
     }
@@ -138,7 +132,6 @@ export default class Dialog {
     const frame = this.getFrame(id);
     if (frame) {
       this.touches = Array.from(event.touches);
-      /** 單一觸控點時 **/
       if (frame.element && type === EventType.DRAG_MOVE) {
         /** 觸控點相對於視窗的座標 **/
         const touch = this.touches[0];
@@ -148,19 +141,13 @@ export default class Dialog {
         this.focusFrame = frame;
         this.eventType = type;
       }
-      frame.onTouchstart(
-        new DialogTouchEvent({
-          event,
-          dialog: this,
-          frame: frame,
-        }),
-      );
+      frame.onTouchstart(event);
     }
   }
 
   onDragover(event: DragEvent) {
     const frame = this.focusFrame;
-    if (frame) {
+    if (frame && frame.element) {
       const pos = {
         pageX: event.pageX,
         pageY: event.pageY,
@@ -177,13 +164,7 @@ export default class Dialog {
         frame.onDragresize(pos, this.eventType);
       }
 
-      frame.onDragover(
-        new DialogDragEvent({
-          event,
-          dialog: this,
-          frame: frame,
-        }),
-      );
+      frame.onDragover(event);
     }
   }
 
@@ -198,13 +179,7 @@ export default class Dialog {
           pageY: touch.pageY,
         });
       }
-      frame.onTouchmove(
-        new DialogTouchEvent({
-          event,
-          dialog: this,
-          frame: frame,
-        }),
-      );
+      frame.onTouchmove(event);
     }
   }
 
@@ -214,13 +189,7 @@ export default class Dialog {
       this.eventType = EventType.NORMAL;
       frame.mouseOffsetX = 0;
       frame.mouseOffsetY = 0;
-      frame.onDragend(
-        new DialogDragEvent({
-          event,
-          dialog: this,
-          frame: frame,
-        }),
-      );
+      frame.onDragend(event);
     }
   }
 
@@ -233,13 +202,7 @@ export default class Dialog {
         frame.mouseOffsetX = 0;
         frame.mouseOffsetY = 0;
       }
-      frame.onTouchend(
-        new DialogTouchEvent({
-          event,
-          dialog: this,
-          frame: frame,
-        }),
-      );
+      frame.onTouchend(event);
     }
   }
 
