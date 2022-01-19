@@ -13,6 +13,8 @@ function pathResolve(dir: string) {
 }
 
 export default ({ command, mode }: ConfigEnv): UserConfig => {
+  console.log(command);
+
   const { VITE_PORT } = loadEnv(mode, root);
 
   return {

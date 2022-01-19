@@ -18,6 +18,7 @@ export default defineComponent({
     /**
      * @Created
      */
+    console.log(props);
 
     /**
      * @Event

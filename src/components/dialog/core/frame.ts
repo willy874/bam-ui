@@ -204,6 +204,7 @@ export default class Frame {
   }
 
   onResize(event: Event) {
+    console.log(event);
     this.setPosition(this.position);
     this.setBoxSize();
   }

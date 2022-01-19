@@ -18,6 +18,7 @@ export default defineComponent({
     /**
      * @Created
      */
+    console.log(props);
 
     /**
      * @Event
@@ -36,6 +37,7 @@ export default defineComponent({
         }
       };
     };
+    console.log(onTouchstart);
 
     const FrameComponent = findParentComponent<FrameComponentInstance>(Frame);
     /**
