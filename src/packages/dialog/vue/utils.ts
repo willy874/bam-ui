@@ -1,4 +1,4 @@
-import { getCurrentInstance, DefineComponent, ComponentInternalInstance, ComponentPublicInstance } from 'vue';
+import { getCurrentInstance, ComponentInternalInstance, ComponentPublicInstance } from 'vue';
 
 function recursionParent(paths: ComponentInternalInstance[], vm: ComponentInternalInstance) {
   paths.push(vm);
@@ -17,7 +17,7 @@ export function getComponentPaths(vm?: ComponentInternalInstance): ComponentInte
   return [];
 }
 
-export function findParentComponent<T = ComponentPublicInstance>(component: DefineComponent) {
+export function findParentComponent<T = ComponentPublicInstance>(component: any) {
   const instance = getCurrentInstance();
   if (instance) {
     const paths = getComponentPaths(instance);

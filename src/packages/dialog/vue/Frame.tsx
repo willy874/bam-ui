@@ -4,7 +4,6 @@ import Dialog from '../core/dialog';
 import Frame from '../core/frame';
 import { getFrameData, getFrameMethods } from '../core/interface';
 import { getTransformStyleString } from '../utils';
-import { FrameComponentOptions } from './types';
 
 export default defineComponent({
   name: 'bam-frame',
@@ -88,4 +87,4 @@ export default defineComponent({
       </div>
     );
   },
-}) as FrameComponentOptions;
+});

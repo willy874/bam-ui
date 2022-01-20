@@ -7,9 +7,9 @@ import {
 } from '../core/control';
 import Dialog from '../core/dialog';
 import Frame from '../core/frame';
-import VueDialog from '../vue/Dialog';
-import FrameDraggable from '../vue/Draggable';
-import FrameResize from '../vue/Resize';
+import VueDialog from './Dialog';
+import FrameDraggable from './Draggable';
+import FrameResize from './Resize';
 
 /**
  * types

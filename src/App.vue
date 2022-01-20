@@ -1,7 +1,7 @@
 <script setup lang="tsx">
 import { ref, PropType } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
-import { VueDialog, useDialog, FrameDraggable, FrameResize, FrameMethods, FrameData } from './components/dialog/vue'
+import { VueDialog, useDialog, FrameDraggable, FrameResize, FrameMethods, FrameData } from './packages/dialog/vue'
 
 const onOpenDialog = async () => {
   const dialog = useDialog()
@@ -66,6 +66,7 @@ const onOpenDialog = async () => {
       <img alt="Vue logo" src="./assets/logo.png" />
       <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
       <button type="button" @click="onOpenDialog">打開</button>
+      <div>123</div>
     </div>
     <VueDialog background-mask="#00000044" />
     <!-- <VueDialog :is-background-mask="false" /> -->

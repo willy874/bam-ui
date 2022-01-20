@@ -9,7 +9,6 @@ import {
   getCurrentInstance,
   markRaw,
 } from 'vue';
-import Frame from '../core/frame';
 import FrameComponent from './Frame';
 import { createDialog } from '../core/control';
 
@@ -108,7 +107,7 @@ export default defineComponent({
         }}
       >
         <div class="absolute inset-0" style={{ background: props.backgroundMask }}></div>
-        {dialog.frames.map((frame: Frame, index: number) => {
+        {dialog.frames.map((frame, index: number) => {
           const target = native.getFrame(frame.id);
           const View = markRaw(defineComponent(target?.view as object));
           return View ? <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog} view={View} /> : null;
