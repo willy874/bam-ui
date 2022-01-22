@@ -6,14 +6,17 @@ import getCommonCompileConfig from './common';
 
 export default function (env: Record<string, string>): UserConfig {
   const common = getCommonCompileConfig(env);
-  const { VITE_PORT, VITE_FRAMEWORK_TYPE } = env;
+  const { VITE_PORT, VITE_DOCKER_PORT, VITE_FRAMEWORK_TYPE } = env;
 
   const port = Number(VITE_PORT) || 8000;
+  const dockerPort = Number(VITE_DOCKER_PORT) || 8000;
   common.server = {
     host: true,
     port,
+    hmr: {
+      port: dockerPort,
+    },
   };
-
   const frameworkPlugins = getFrameworkDependPlugins(VITE_FRAMEWORK_TYPE);
   const plugins = [
     ...frameworkPlugins,
@@ -23,7 +26,7 @@ export default function (env: Record<string, string>): UserConfig {
     purgeIcons(),
   ];
   if (common.plugins) {
-    common.plugins.concat(...plugins);
+    common.plugins.push(...plugins);
   } else {
     common.plugins = plugins;
   }

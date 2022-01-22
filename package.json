@@ -8,6 +8,17 @@
     "start": "docker-compose up",
     "preview": "vite preview"
   },
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/bam.umd.js",
+  "module": "./dist/bam.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/bam.es.js",
+      "require": "./dist/bam.umd.js"
+    }
+  },
   "dependencies": {},
   "devDependencies": {
     "lodash-es": "^4.17.21",
