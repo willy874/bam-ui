@@ -3,11 +3,11 @@ import { pathResolve, getFrameworkDependPlugins } from './utils';
 import dts from 'vite-plugin-dts';
 import getCommonCompileConfig from './common';
 
-export default function (env: Record<string, string>): UserConfig {
+export default function (env: Env): UserConfig {
   const common = getCommonCompileConfig(env);
   const { VITE_FRAMEWORK_TYPE } = env;
-
-  const frameworkPlugins = getFrameworkDependPlugins(VITE_FRAMEWORK_TYPE);
+  const frameworkType = VITE_FRAMEWORK_TYPE?.toLocaleLowerCase() || 'vanilla';
+  const frameworkPlugins = getFrameworkDependPlugins(frameworkType);
   const plugins = [
     ...frameworkPlugins,
     //

@@ -24,7 +24,8 @@
     "skipLibCheck": true,
     "paths": {
       "/@/*": ["src/*"],
-      "/#/*": ["types/*"]
+      "/#/*": ["types/*"],
+      "*": ["types/*.d.ts"]
     }
   },
   "include": [

@@ -1,8 +1,10 @@
 import { UserConfig } from 'vite';
 import { pathResolve } from './utils';
 
-export default function getCommonCompileConfig(env: Record<string, string>): UserConfig {
-  console.log(env);
+export default function getCommonCompileConfig(env: Env): UserConfig {
+  const { VITE_FRAMEWORK_TYPE } = env;
+  const framework = VITE_FRAMEWORK_TYPE?.toLocaleLowerCase() || 'vanilla';
+  console.log(framework);
 
   return {
     resolve: {

@@ -1,4 +1,11 @@
-import { getCurrentInstance, ComponentInternalInstance, ComponentPublicInstance } from 'vue';
+import {
+  getCurrentInstance,
+  ComponentInternalInstance,
+  ComponentPublicInstance,
+  defineComponent,
+  isProxy,
+  markRaw,
+} from 'vue';
 
 function recursionParent(paths: ComponentInternalInstance[], vm: ComponentInternalInstance) {
   paths.push(vm);
@@ -9,7 +16,7 @@ function recursionParent(paths: ComponentInternalInstance[], vm: ComponentIntern
   }
 }
 
-export function getComponentPaths(vm?: ComponentInternalInstance): ComponentInternalInstance[] {
+function getComponentPaths(vm?: ComponentInternalInstance): ComponentInternalInstance[] {
   const paths = [];
   if (vm) {
     return recursionParent(paths, vm);
@@ -17,9 +24,14 @@ export function getComponentPaths(vm?: ComponentInternalInstance): ComponentInte
   return [];
 }
 
+/**
+ * 放入 vue 實體，可以用 getCurrentInstance() 取得，要在 setup 獲取。
+ * @param {ComponentPublicInstance} component
+ * @returns {ComponentPublicInstance}
+ */
 export function findParentComponent<T = ComponentPublicInstance>(component: any) {
   const instance = getCurrentInstance();
-  if (instance) {
+  if (instance && component) {
     const paths = getComponentPaths(instance);
     for (const vm of paths) {
       if (!vm.type.name && !component.name) {
@@ -30,4 +42,11 @@ export function findParentComponent<T = ComponentPublicInstance>(component: any)
       }
     }
   }
+}
+
+export function defineComponentProps(component: any) {
+  if (isProxy(component)) {
+    console.warn('請放入未被代理的組件');
+  }
+  return markRaw(defineComponent(component));
 }

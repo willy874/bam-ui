@@ -1,7 +1,7 @@
 import { defineComponent } from 'vue';
 import { FrameComponentInstance } from './types';
 import { EventType } from '../types';
-import { findParentComponent } from './utils';
+import { findParentComponent } from '/@/vue/utils';
 import Frame from './Frame';
 
 export default defineComponent({

@@ -1,16 +1,15 @@
+import { getViewportOffset } from 'bam-utility-plugins';
 import { FrameOptions, FramePosition, PagePosition, EventType } from '../types';
-import type Dialog from './dialog';
 import { useDialog } from './control';
-import { getViewportOffset } from '../utils';
 
 const frameHooks = ('mount,unmount,update,bgclick,' + 'dragstart,dragover,dragend,touchstart,touchmove,touchend').split(
   ',',
 );
 
-export default class Frame {
+export default class Frame<View = {}> implements DialogInterface.Frame<View> {
   id: symbol;
   dialogId: symbol;
-  view: object;
+  view: View;
   props: object;
   isOverLimit: boolean;
   isDraggable: boolean;
@@ -34,7 +33,7 @@ export default class Frame {
   isResized: boolean = false;
   dialogPadding: number = 60;
 
-  constructor(args: FrameOptions) {
+  constructor(args: FrameOptions<View>) {
     this.id = Symbol('Frame');
     this.dialogId = args.dialogId;
     this.view = args.view;
@@ -159,7 +158,7 @@ export default class Frame {
     return false;
   }
 
-  async onClose(dialog: Dialog) {
+  async onClose(dialog) {
     const indexOf = dialog.frames.map((f) => f.id).indexOf(this.id);
     const frames = dialog.frames.splice(indexOf, 1);
     const target = frames[0];

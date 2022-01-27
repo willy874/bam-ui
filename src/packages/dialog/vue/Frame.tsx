@@ -3,7 +3,7 @@ import type { DefineComponent, PropType } from 'vue';
 import Dialog from '../core/dialog';
 import Frame from '../core/frame';
 import { getFrameData, getFrameMethods } from '../core/interface';
-import { getTransformStyleString } from '../utils';
+import { getTransformStyleString } from 'bam-utility-plugins';
 
 export default defineComponent({
   name: 'bam-frame',

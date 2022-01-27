@@ -31,7 +31,7 @@ export { VueDialog, FrameDraggable, FrameResize };
  * @param {DialogOptions} options
  * @returns {Dialog}
  */
-export function createDialog(options: DialogOptions) {
+export function createDialog(options: DialogInterface.DialogOptions) {
   return createDialogNative(options);
 }
 

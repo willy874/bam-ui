@@ -5,7 +5,7 @@ import build from './compile/lib';
 export default ({ command, mode }: ConfigEnv): UserConfig => {
   console.log(`http://localhost:3011/`);
 
-  const env = loadEnv(mode, process.cwd());
+  const env: Env = loadEnv(mode, process.cwd());
 
   if (command === 'serve') {
     return development(env);

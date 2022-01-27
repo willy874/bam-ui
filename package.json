@@ -19,12 +19,10 @@
       "require": "./dist/bam.umd.js"
     }
   },
-  "dependencies": {},
+  "dependencies": {
+    "bam-utility-plugins": "^0.2.0"
+  },
   "devDependencies": {
-    "lodash-es": "^4.17.21",
-    "vue": "^3.2.16",
-    "vue-i18n": "^9.1.2",
-    "vue-types": "^4.1.1",
     "@types/lodash-es": "^4.17.5",
     "@types/node": "^16.11.11",
     "@typescript-eslint/eslint-plugin": "^5.3.1",
@@ -57,7 +55,10 @@
     "vite-plugin-dts": "^0.9.9",
     "vite-plugin-purge-icons": "^0.7.0",
     "vite-plugin-vue-setup-extend": "^0.1.0",
+    "vue": "^3.2.16",
     "vue-eslint-parser": "^8.0.1",
-    "vue-tsc": "^0.29.3"
+    "vue-i18n": "^9.1.2",
+    "vue-tsc": "^0.29.3",
+    "vue-types": "^4.1.1"
   }
 }

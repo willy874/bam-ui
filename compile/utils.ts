@@ -14,8 +14,7 @@ export function pathResolve(dir: string | string[], ...dirs: string[]) {
 }
 
 export function getFrameworkDependPlugins(type) {
-  const framework = type?.toLocaleLowerCase() || 'vanilla';
-  if (framework === 'vue') {
+  if (type === 'vue') {
     return [
       //
       vue(),

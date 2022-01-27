@@ -1,13 +1,13 @@
 <script setup lang="tsx">
-import { ref, PropType } from 'vue'
+import { ref, PropType, defineComponent } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
-import { VueDialog, useDialog, FrameDraggable, FrameResize, FrameMethods, FrameData } from './packages/dialog/vue'
+import { VueDialog, useDialog, FrameDraggable, FrameResize, FrameMethods, FrameData } from '../packages/dialog/vue'
 
 const onOpenDialog = async () => {
   const dialog = useDialog()
   const text = ref('測試巴拉巴拉')
 
-  const view = {
+  const view = defineComponent({
     props: {
       frameData: {
         type: Object as PropType<FrameData>,
@@ -53,10 +53,10 @@ const onOpenDialog = async () => {
         </div>
       )
     }
-  }
+  })
   
-
-  console.log(await dialog.openFrame({ view }));
+  const V = await dialog.openFrame({ view })
+  console.log(V);
 }
 </script>
 

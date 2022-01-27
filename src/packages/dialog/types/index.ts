@@ -26,8 +26,8 @@ export interface FrameHookParam {
 
 export type FramePosition = 'auto' | 'center' | { top: number | string; left: number | string };
 
-export interface OpenFrameOptions {
-  view: object;
+export interface OpenFrameOptions<View = {}> {
+  view: View;
   props?: object;
   hook?: FrameHookParam;
   position?: FramePosition;
@@ -39,7 +39,7 @@ export interface OpenFrameOptions {
   height?: string;
 }
 
-export interface FrameOptions extends OpenFrameOptions {
+export interface FrameOptions<View = {}> extends OpenFrameOptions<View> {
   dialogId: symbol;
   close: Function;
   onError: Function;

@@ -39,7 +39,7 @@ export default defineComponent({
      */
     const id = ref(Symbol(props.name));
     const native = createDialog({
-      id: id.value,
+      name: id.value,
       isBackgroundMask: props.isBackgroundMask,
       hook: {
         mount: (...args: any[]) => emit('mount', ...args),
