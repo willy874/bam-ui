@@ -1,7 +1,7 @@
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { FrameComponentInstance } from './types';
-import { EventType } from '../types';
 import { findParentComponent } from '/@/vue/utils';
+import { DialogEventType } from '/@/enum';
 import Frame from './Frame';
 
 export default defineComponent({
@@ -9,31 +9,26 @@ export default defineComponent({
 
   props: {
     tag: {
-      type: String,
+      type: String as PropType<keyof HTMLElementTagNameMap & string>,
       default: 'div',
     },
   },
 
   setup(props, context) {
     /**
-     * @Created
-     */
-    console.log(props);
-
-    /**
      * @Event
      */
     const onDragstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onDragstart(e, FrameComponent.frame, EventType.DRAG_MOVE);
+          FrameComponent.dialog.onDragstart(e, FrameComponent.frame, DialogEventType.DRAG_MOVE);
         }
       };
     };
     const onTouchstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, EventType.DRAG_MOVE);
+          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, DialogEventType.DRAG_MOVE);
         }
       };
     };
@@ -45,14 +40,14 @@ export default defineComponent({
     return () => {
       if (FrameComponent) {
         return (
-          <div
-            class={{ 'cursor-move': FrameComponent.frame.isDraggable }}
+          <props.tag
+            style={{ cursor: FrameComponent.frame.isDraggable && 'move' }}
             draggable={true}
             onDragstart={onDragstart(FrameComponent)}
             onTouchstart={onTouchstart(FrameComponent)}
           >
             {context.slots.default && context.slots.default()}
-          </div>
+          </props.tag>
         );
       }
       return null;

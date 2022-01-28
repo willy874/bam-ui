@@ -1,6 +1,14 @@
 declare namespace DialogInterface {
-  class Dialog<View> {
-    frames: Array<Frame<ValueOf<View>>>;
+  class Dialog<View = BaseView> {
+    id: symbol;
+    frames: Array<Frame<View>>;
+    isBackgroundMask: boolean;
+    backgroundMask: string;
+    focusFrame: Frame<View> | null;
+    eventType: number;
+    element: Element | null;
+    touches: Touch[];
+    prevTouches: Touch[];
     constructor(args: DialogConstructor);
     setRootElement(value: Element): void;
   }
@@ -12,20 +20,23 @@ declare namespace DialogInterface {
     backgroundMask: string;
   }
 
-  interface DialogOptions {
-    name: number | string | symbol;
+  interface DialogOptions<View = BaseView> {
+    name?: number | string | symbol;
     hook?: DialogHookParam;
     isBackgroundMask?: boolean;
     backgroundMask?: string;
   }
 
-  type DialogHooks = 'mount' | 'unmount' | 'update' | 'bgclick';
-
   interface DialogHookParam {
-    [key: DialogHooks]: Function;
+    mount?: Function;
+    unmount?: Function;
+    update?: Function;
+    bgclick?: Function;
   }
 
-  class Frame<View = {}> {
+  type DialogHooks = keyof DialogHookParam & string;
+
+  class Frame<View = BaseView> {
     id: symbol;
     dialogId: symbol;
     view: View;
@@ -40,11 +51,9 @@ declare namespace DialogInterface {
     left: string;
     width: string | number;
     height: string | number;
-    mouseOffsetX = 0;
-    mouseOffsetY = 0;
+    mouseOffsetY: number;
     close: Function | null;
     onError: Function;
-    hook: FrameHook;
     resizeObserver: ResizeObserver | null;
     isDragged: boolean;
     isResized: boolean;
@@ -53,16 +62,16 @@ declare namespace DialogInterface {
     onResize(event: Event);
     onDragstart(event: DragEvent);
     onDragmove(event: PagePosition);
-    onDragresize(event: PagePosition, type?: EventType);
+    onDragresize(event: PagePosition, type?: number);
     onDragover(event: DragEvent);
     onDragend(event: DragEvent);
     onTouchstart(event: TouchEvent);
-    onTouchmove(event: TouchEvent, type?: EventType);
+    onTouchmove(event: TouchEvent, type?: number);
     onTouchend(event: TouchEvent);
     onClose(event: Dialog);
   }
 
-  interface OpenFrameOptions<View = {}> {
+  interface OpenFrameOptions<View = BaseView> {
     view: View;
     props?: object;
     hook?: FrameHookParam;
@@ -75,16 +84,34 @@ declare namespace DialogInterface {
     height?: string;
   }
 
-  interface FrameOptions<View = {}> extends OpenFrameOptions<View> {
+  interface FrameOptions<View = BaseView> extends OpenFrameOptions<View> {
     dialogId: symbol;
     close: Function;
     onError: Function;
     position?: FramePosition;
   }
 
-  interface FrameHook {
-    [key: string]: Function[];
+  interface FrameConstructor<View = BaseView> extends OpenFrameOptions<View> {
+    dialogId: symbol;
+    close: Function;
+    onError: Function;
+    position?: FramePosition;
   }
+
+  interface FrameHookParam {
+    mount?: Function;
+    unmount?: Function;
+    update?: Function;
+    bgclick?: Function;
+    dragstart?: Function;
+    dragover?: Function;
+    dragend?: Function;
+    touchstart?: Function;
+    touchmove?: Function;
+    touchend?: Function;
+  }
+
+  type FrameHook = keyof FrameHookParam & string;
 
   interface FrameCollection {
     [key: string | number | symbol]: Frame;
@@ -95,12 +122,14 @@ declare namespace DialogInterface {
     pageY: number;
   }
 
-  enum EventType {
-    NORMAL = 0,
-    DRAG_MOVE = 1,
-    RESIZE_TOP = 2,
-    RESIZE_LEFT = 3,
-    RESIZE_BOTTOM = 4,
-    RESIZE_RIGHT = 5,
+  type FramePosition = 'auto' | 'center' | { top: number | string; left: number | string };
+
+  interface FrameOptions<View = BaseView> extends OpenFrameOptions<View> {
+    dialogId: symbol;
+    close: Function;
+    onError: Function;
+    position?: FramePosition;
   }
+
+  type BaseView = {} | Function | (new (...arg: any) => any) | string | { [key: string | symbol]: any };
 }

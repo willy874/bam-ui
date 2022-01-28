@@ -1,20 +1,21 @@
-import { FramePosition, FrameMethods, FrameData } from '../types';
 import Frame from './frame';
 
-export function getFrameMethods(frame: Frame): FrameMethods {
+export function getFrameMethods(frame: Frame) {
   return {
     setResizable: (bool: boolean) => frame.setResizable(bool),
     setDraggable: (bool: boolean) => frame.setDraggable(bool),
     setOverLimit: (bool: boolean) => frame.setOverLimit(bool),
     setFull: (bool: boolean) => frame.setFull(bool),
-    setPosition: (position: FramePosition) => frame.setPosition(position),
+    setPosition: (...args: Parameters<typeof frame.setPosition>) => frame.setPosition(...args),
     setBoxSize: () => frame.setBoxSize(),
     on: (type: string, callback: Function) => frame.on(type, callback),
     off: (type: string, callback: Function) => frame.off(type, callback),
   };
 }
 
-export function getFrameData(frame: Frame): FrameData {
+export type FrameMethods = ReturnType<typeof getFrameMethods>;
+
+export function getFrameData(frame: Frame) {
   return {
     id: frame.id,
     dialogId: frame.dialogId,
@@ -31,3 +32,5 @@ export function getFrameData(frame: Frame): FrameData {
     isFull: frame.isFull,
   };
 }
+
+export type FrameData = ReturnType<typeof getFrameData>;

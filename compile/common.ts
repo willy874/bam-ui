@@ -20,9 +20,13 @@ export default function getCommonCompileConfig(env: Env): UserConfig {
       ],
     },
     css: {
+      modules: {
+        generateScopedName: 'bam-[local]',
+        hashPrefix: 'prefix',
+      },
       preprocessorOptions: {
         scss: {
-          additionalData: `@import "./src/style/variables.scss";`,
+          additionalData: `@import "./src/style/import.scss";`,
         },
       },
     },

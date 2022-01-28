@@ -1,75 +1,30 @@
 <script setup lang="tsx">
-import { ref, PropType, defineComponent } from 'vue'
 import HelloWorld from './components/HelloWorld.vue'
-import { VueDialog, useDialog, FrameDraggable, FrameResize, FrameMethods, FrameData } from '../packages/dialog/vue'
+import DialogView from './components/DialogView.vue'
+import { BamDialog, createDialog, useDialog } from './components/dialog'
 
 const onOpenDialog = async () => {
-  const dialog = useDialog()
-  const text = ref('測試巴拉巴拉')
-
-  const view = defineComponent({
-    props: {
-      frameData: {
-        type: Object as PropType<FrameData>,
-        required: true
-      },
-      frameMethods: {
-        type: Object as PropType<FrameMethods>,
-        required: true
-      },
-      frameProps: {
-        type: Object,
-        default: () => ({})
-      }
-    },
-    setup(props) {
-      const d = useDialog()
-      console.log(props);
-      
-      return () => (
-        <div
-          style={{
-            background: '#fff',
-            border: '1px solid #000'
-          }}
-        >
-          <FrameResize>
-            <div
-              style={{
-                padding: '4rem',
-              }}
-            >
-              <button onClick={() => dialog.closeFrame(props.frameData.id)}>關閉</button>
-              <div class="py-2"></div>
-              <button type="button" onClick={() => d.openFrame({ view })}>打開</button>
-              <div class="py-2"></div>
-              <button type="button" onClick={() => props.frameMethods.setFull(!props.frameData.isFull)}>全畫面</button>
-              <div class="py-2"></div>
-              <FrameDraggable>拖拉</FrameDraggable>
-              <div class="py-2"></div>
-              <div>{text.value}</div>
-            </div>
-          </FrameResize>
-        </div>
-      )
-    }
-  })
-  
-  const V = await dialog.openFrame({ view })
+  const d = useDialog()
+  const V = await d.openFrame({ view: DialogView })
   console.log(V);
 }
+
+const dialog = createDialog({
+  backgroundMask: '#00000044',
+  // isBackgroundMask: false
+})
 </script>
 
 <template>
   <div>
     <div>
-      <img alt="Vue logo" src="./assets/logo.png" />
+      <img alt="Vue logo" src="/@/assets/logo.png" />
       <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
       <button type="button" @click="onOpenDialog">打開</button>
       <div>123</div>
     </div>
-    <VueDialog background-mask="#00000044" />
-    <!-- <VueDialog :is-background-mask="false" /> -->
+    <BamDialog :dialog="dialog" />
+    <!-- <BamDialog :is-background-mask="false" /> -->
   </div>
 </template>
 

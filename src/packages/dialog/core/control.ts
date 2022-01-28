@@ -1,67 +1,48 @@
-import type { FrameOptions } from '../types';
 import Frame from './frame';
 import Dialog from './dialog';
 
-const dialogList: { [key: symbol]: Dialog } = {};
-const dialogIdList = new Set<symbol>();
-let dialogSymbol = Symbol('dialog');
+const DialogCollection: { [key: symbol]: () => Dialog } = {};
+const FrameCollection: { [key: symbol]: Frame } = {};
 
-export function createDialog<VC>(options: DialogInterface.DialogOptions) {
-  return new Dialog<VC>({
+let getDefaultDialog: (() => Dialog) | null = null;
+
+function useHandler(dialog: Dialog, callback?: Function) {
+  const result = callback ? callback(dialog) : null;
+  return result instanceof Dialog ? result : dialog;
+}
+
+export function createDialog<View = DialogInterface.BaseView>(
+  options: DialogInterface.DialogOptions<View>,
+  pluginHandler?: Function,
+) {
+  const dialog = new Dialog({
     id: typeof options.name === 'symbol' ? options.name : Symbol(options.name),
     hook: options.hook || {},
     isBackgroundMask: options.isBackgroundMask === false ? false : true,
     backgroundMask: options.backgroundMask || 'transparent',
   });
-}
-const frameCollections = {
-  frameTest_1: { name1: 'd1' },
-  frameTest_2: { name2: 'd2' },
-  frameTest_3: { name3: 'd3' },
-  frameTest_4: { name4: 'd4' },
-  frameTest_5: { name5: 'd5' },
-};
-const dia = createDialog<typeof frameCollections>({
-  name: 'dia',
-});
-dia.frames.map((f) => {
-  f.view;
-});
-
-export function useDialog(id?: symbol) {
-  const dialog = dialogList[id || dialogSymbol];
+  DialogCollection[dialog.id] = () => useHandler(dialog, pluginHandler);
+  if (!getDefaultDialog) {
+    getDefaultDialog = () => useHandler(dialog, pluginHandler);
+  }
   return dialog;
 }
 
-export function createFrame<View>(options: FrameOptions<View>): Frame<View> {
+export function useDialog<View = DialogInterface.BaseView>(id?: symbol) {
+  if (!getDefaultDialog) {
+    throw new Error('not created dialog');
+  }
+  const getDialog = (id && DialogCollection[id]) || getDefaultDialog;
+  return getDialog() as Dialog<View>;
+}
+
+export function createFrame<View>(options: DialogInterface.FrameOptions<View>): Frame<View> {
   const frame = new Frame<View>(options);
+  FrameCollection[frame.id] = frame;
   return frame;
 }
 
-export function useFrame(id: symbol) {
-  const cache: DialogInterface.Frame[] = [];
-  dialogIdList.forEach((dialogId) => {
-    cache.push(...dialogList[dialogId].frames);
-  });
-  return cache.find((f) => f.id === id) || null;
-}
-
-let lastRenderDialogId: symbol;
-export function useDialogRender(id?: symbol) {
-  if (id) {
-    lastRenderDialogId = id;
-    return null;
-  } else {
-    return useDialog(lastRenderDialogId);
-  }
-}
-
-let lastRenderFrameId: symbol;
-export function useFrameRender(id?: symbol) {
-  if (id) {
-    lastRenderFrameId = id;
-    return null;
-  } else {
-    return useFrame(lastRenderFrameId);
-  }
+export function useFrame<View>(id: symbol) {
+  const frame = FrameCollection[id];
+  return frame as Frame<View>;
 }

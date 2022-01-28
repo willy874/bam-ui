@@ -4,6 +4,7 @@ import Dialog from '../core/dialog';
 import Frame from '../core/frame';
 import { getFrameData, getFrameMethods } from '../core/interface';
 import { getTransformStyleString } from 'bam-utility-plugins';
+import css from '/@/style';
 
 export default defineComponent({
   name: 'bam-frame',
@@ -38,7 +39,7 @@ export default defineComponent({
      * @Created
      */
     if (props.dialog.isBackgroundMask && props.frame.hook.bgclick.length === 0) {
-      props.frame.on('bgclick', () => props.frame.onClose(props.dialog));
+      props.frame.on('bgclick', () => props.frame.onClose());
     }
 
     /**
@@ -65,7 +66,7 @@ export default defineComponent({
     return () => (
       <div
         ref={(e: Element) => props.frame.setFrameElement(e)}
-        class={{ 'absolute top-0 left-0 pointer-events-auto': true }}
+        class={css.dialog_frame}
         style={{
           zIndex: props.zIndex,
           transform: getTransformStyleString({
@@ -79,7 +80,7 @@ export default defineComponent({
         onMousedown={() => props.dialog.sortToRight(props.frame.id)}
       >
         <View
-          class="h-full w-full"
+          class={css.dialog_view}
           frame-data={frameData.value}
           frame-methods={frameMethods.value}
           frame-props={props.frame.props}

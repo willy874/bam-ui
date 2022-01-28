@@ -1,5 +1,5 @@
 import { UserConfig } from 'vite';
-import { getFrameworkDependPlugins, pathResolve } from './utils';
+import { getFrameworkDependPlugins } from './utils';
 import legacy from '@vitejs/plugin-legacy';
 import purgeIcons from 'vite-plugin-purge-icons';
 import getCommonCompileConfig from './common';

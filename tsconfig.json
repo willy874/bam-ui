@@ -28,6 +28,7 @@
       "*": ["types/*.d.ts"]
     }
   },
+  "plugins": [{ "name": "typescript-plugin-css-modules" }],
   "include": [
     "tests/**/*.ts",
     "src/**/*.ts",

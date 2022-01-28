@@ -1,12 +1,12 @@
 import { getViewportOffset } from 'bam-utility-plugins';
-import { FrameOptions, FramePosition, PagePosition, EventType } from '../types';
 import { useDialog } from './control';
+import { DialogEventType } from '/@/enum';
 
 const frameHooks = ('mount,unmount,update,bgclick,' + 'dragstart,dragover,dragend,touchstart,touchmove,touchend').split(
   ',',
 );
 
-export default class Frame<View = {}> implements DialogInterface.Frame<View> {
+export default class Frame<View = DialogInterface.BaseView> implements DialogInterface.Frame<View> {
   id: symbol;
   dialogId: symbol;
   view: View;
@@ -15,7 +15,7 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
   isDraggable: boolean;
   isResizable: boolean;
   isFull: boolean = false;
-  position: FramePosition;
+  position: DialogInterface.FramePosition;
   element: Element | null = null;
   top: string = '0px';
   left: string = '0px';
@@ -33,7 +33,7 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
   isResized: boolean = false;
   dialogPadding: number = 60;
 
-  constructor(args: FrameOptions<View>) {
+  constructor(args: DialogInterface.FrameConstructor<View>) {
     this.id = Symbol('Frame');
     this.dialogId = args.dialogId;
     this.view = args.view;
@@ -89,7 +89,8 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
     this.isFull = bool;
   }
 
-  setPosition(position: FramePosition) {
+  setPosition(position: DialogInterface.FramePosition) {
+    const dialog = useDialog(this.dialogId);
     if (typeof position === 'object') {
       this.top = typeof position.top === 'number' ? position.top + 'px' : position.top || '0';
       this.left = typeof position.left === 'number' ? position.left + 'px' : position.left || '0';
@@ -102,7 +103,7 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
         this.left = window.innerWidth / 2 - elementClientWidth / 2 + 'px';
       }
       if (position === 'auto') {
-        const length = useDialog(this.dialogId).frames.length;
+        const length = dialog.frames.length;
         this.top = window.innerHeight / 3 - elementClientHeight / 3 + 10 * (length - 1) + 'px';
         this.left = window.innerWidth / 2 - elementClientWidth / 2 + 10 * (length - 1) + 'px';
       }
@@ -112,7 +113,7 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
         this.left = `calc(${window.innerWidth / 2}px - 50%)`;
       }
       if (position === 'auto') {
-        const length = useDialog(this.dialogId).frames.length;
+        const length = dialog.frames.length;
         this.top = `calc(${window.innerHeight / 3 + 10 * (length - 1)}px)`;
         this.left = `calc(${window.innerWidth / 2 + 10 * (length - 1)}px - 50%)`;
       }
@@ -158,7 +159,8 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
     return false;
   }
 
-  async onClose(dialog) {
+  async onClose() {
+    const dialog = useDialog(this.dialogId);
     const indexOf = dialog.frames.map((f) => f.id).indexOf(this.id);
     const frames = dialog.frames.splice(indexOf, 1);
     const target = frames[0];
@@ -220,7 +222,7 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
     });
   }
 
-  onDragmove(pos: PagePosition) {
+  onDragmove(pos: DialogInterface.PagePosition) {
     this.isFull = false;
     if (this.element && this.isDraggable) {
       this.isDragged = true;
@@ -251,7 +253,7 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
     }
   }
 
-  onDragresize(pos: PagePosition, type: EventType) {
+  onDragresize(pos: DialogInterface.PagePosition, type: DialogEventType) {
     this.isFull = false;
     if (this.element && this.isResizable) {
       this.isResized = true;
@@ -262,20 +264,20 @@ export default class Frame<View = {}> implements DialogInterface.Frame<View> {
       this.left = viewPort.left + 'px';
       this.width = elementClientWidth + 'px';
       this.height = elementClientHeight + 'px';
-      if (type === EventType.RESIZE_TOP) {
+      if (type === DialogEventType.RESIZE_TOP) {
         const plusHeight = viewPort.top - pos.pageY;
         this.top = viewPort.top - plusHeight + 'px';
         this.height = elementClientHeight + plusHeight + 'px';
       }
-      if (type === EventType.RESIZE_BOTTOM) {
+      if (type === DialogEventType.RESIZE_BOTTOM) {
         const plusHeight = pos.pageY - viewPort.top - elementClientHeight;
         this.height = elementClientHeight + plusHeight + 'px';
       }
-      if (type === EventType.RESIZE_RIGHT) {
+      if (type === DialogEventType.RESIZE_RIGHT) {
         const plusWidth = pos.pageX - viewPort.left - elementClientWidth;
         this.width = elementClientWidth + plusWidth + 'px';
       }
-      if (type === EventType.RESIZE_LEFT) {
+      if (type === DialogEventType.RESIZE_LEFT) {
         const plusWidth = viewPort.left - pos.pageX;
         this.left = viewPort.left - plusWidth + 'px';
         this.width = elementClientWidth + plusWidth + 'px';

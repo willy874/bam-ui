@@ -1,13 +1,30 @@
-import type { ComponentPublicInstance, DefineComponent } from 'vue';
+import { ComponentPublicInstance, DefineComponent } from 'vue';
 import type Dialog from '../core/dialog';
 import type Frame from '../core/frame';
 
-export interface FrameComponentProps<V = DefineComponent> {
+export type AnyDefineComponent = DefineComponent<
+  unknown,
+  unknown,
+  unknown,
+  any,
+  any,
+  any,
+  any,
+  any,
+  any,
+  unknown,
+  unknown,
+  unknown
+> & {};
+export interface FrameComponentProps<V = AnyDefineComponent> {
   dialog: Dialog;
   view: V;
   frame: Frame;
   zIndex: number;
 }
-export interface FrameComponentDate {}
 
-export type FrameComponentInstance = ComponentPublicInstance & FrameComponentProps & FrameComponentDate;
+export type FrameComponentInstance = ComponentPublicInstance & FrameComponentProps;
+
+export type ViewComponentOption<C extends AnyDefineComponent = AnyDefineComponent> = C extends AnyDefineComponent
+  ? C
+  : DialogInterface.BaseView;

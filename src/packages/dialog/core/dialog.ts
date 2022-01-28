@@ -2,21 +2,22 @@ import Frame from './frame';
 import { getViewportOffset, clearDragImage } from 'bam-utility-plugins';
 import { createFrame } from './control';
 import { isSymbol } from '/@/utils';
+import { DialogEventType } from '/@/enum';
 
 type GetFrameParam = Frame | number | symbol;
 
-function isFrame<VC = {}>(f: unknown): f is DialogInterface.Frame<ValueOf<VC>> {
+function isFrame<View = DialogInterface.BaseView>(f: unknown): f is Frame<View> {
   return f instanceof Frame;
 }
 
 const dialogHooks = 'mount,unmount,update,bgclick'.split(',');
-export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
+export default class Dialog<View = DialogInterface.BaseView> implements DialogInterface.Dialog<View> {
   public readonly id: symbol;
-  public readonly frames: Array<DialogInterface.Frame<ValueOf<VC>>> = [];
+  public readonly frames: Array<Frame<View>> = [];
   public readonly isBackgroundMask: boolean;
   public readonly backgroundMask: string;
-  public focusFrame: DialogInterface.Frame<ValueOf<VC>> | null = null;
-  public eventType: DialogInterface.EventType = DialogInterface.EventType.NORMAL;
+  public focusFrame: Frame<View> | null = null;
+  public eventType: DialogEventType = DialogEventType.NORMAL;
   public element: Element | null = null;
   public touches: Touch[] = [];
   public prevTouches: Touch[] = [];
@@ -121,7 +122,7 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
     }
   }
 
-  onDragstart(event: DragEvent, id: GetFrameParam, type: DialogInterface.EventType) {
+  onDragstart(event: DragEvent, id: GetFrameParam, type: DialogEventType) {
     const frame = this.getFrame(id);
     if (frame && frame.element && event.dataTransfer) {
       clearDragImage(event);
@@ -137,11 +138,11 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
     }
   }
 
-  onTouchstart(event: TouchEvent, id: GetFrameParam, type: DialogInterface.EventType) {
+  onTouchstart(event: TouchEvent, id: GetFrameParam, type: DialogEventType) {
     const frame = this.getFrame(id);
     if (frame) {
       this.touches = Array.from(event.touches);
-      if (frame.element && type === DialogInterface.EventType.DRAG_MOVE) {
+      if (frame.element && type === DialogEventType.DRAG_MOVE) {
         /** 觸控點相對於視窗的座標 **/
         const touch = this.touches[0];
         const viewPort = getViewportOffset(frame.element);
@@ -161,14 +162,14 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
         pageX: event.pageX,
         pageY: event.pageY,
       };
-      if (this.eventType === DialogInterface.EventType.DRAG_MOVE) {
+      if (this.eventType === DialogEventType.DRAG_MOVE) {
         frame.onDragmove(pos);
       }
       if (
-        this.eventType === DialogInterface.EventType.RESIZE_TOP ||
-        this.eventType === DialogInterface.EventType.RESIZE_LEFT ||
-        this.eventType === DialogInterface.EventType.RESIZE_BOTTOM ||
-        this.eventType === DialogInterface.EventType.RESIZE_RIGHT
+        this.eventType === DialogEventType.RESIZE_TOP ||
+        this.eventType === DialogEventType.RESIZE_LEFT ||
+        this.eventType === DialogEventType.RESIZE_BOTTOM ||
+        this.eventType === DialogEventType.RESIZE_RIGHT
       ) {
         frame.onDragresize(pos, this.eventType);
       }
@@ -181,7 +182,7 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
     const frame = this.focusFrame;
     if (frame) {
       this.touches = Array.from(event.touches);
-      if (this.eventType === DialogInterface.EventType.DRAG_MOVE && this.touches.length === 1) {
+      if (this.eventType === DialogEventType.DRAG_MOVE && this.touches.length === 1) {
         const touch = this.touches[0];
         frame.onDragmove({
           pageX: touch.pageX,
@@ -195,7 +196,7 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
   onDragend(event: DragEvent) {
     const frame = this.focusFrame;
     if (frame) {
-      this.eventType = DialogInterface.EventType.NORMAL;
+      this.eventType = DialogEventType.NORMAL;
       frame.mouseOffsetX = 0;
       frame.mouseOffsetY = 0;
       frame.onDragend(event);
@@ -207,7 +208,7 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
     if (frame) {
       this.touches = Array.from(event.touches);
       if (this.touches.length === 0) {
-        this.eventType = DialogInterface.EventType.NORMAL;
+        this.eventType = DialogEventType.NORMAL;
         frame.mouseOffsetX = 0;
         frame.mouseOffsetY = 0;
       }
@@ -215,22 +216,22 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
     }
   }
 
-  openFrame<View>(frame: DialogInterface.OpenFrameOptions<View> | Frame<View>): Promise<Frame<View>> {
+  openFrame<V = View>(frame: DialogInterface.OpenFrameOptions<V> | Frame<V>): Promise<Frame<V>> {
     return new Promise((resolve, reject) => {
-      if (isFrame<VC>(frame)) {
+      if (isFrame<View>(frame)) {
         frame.dialogId = this.id;
         frame.close = resolve;
         frame.onError = reject;
         this.frames.push(frame);
       } else {
-        const target = frame as DialogInterface.OpenFrameOptions<View>;
-        const newFrame = createFrame<View>({
+        const target = frame as DialogInterface.OpenFrameOptions<V>;
+        const newFrame = createFrame<V>({
           ...target,
           dialogId: Symbol('Frame'),
           close: resolve,
           onError: reject,
         });
-        if (isFrame<VC>(newFrame)) {
+        if (isFrame<View>(newFrame)) {
           this.frames.push(newFrame);
         }
       }
@@ -241,10 +242,10 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
     });
   }
 
-  private async callbackCloseFrame(frames: DialogInterface.Frame<ValueOf<VC>>[], callback?: Function) {
+  private async callbackCloseFrame(frames: Frame<View>[], callback?: Function) {
     return await Promise.all(
       frames.map(async (f) => {
-        const res = await f.onClose(this);
+        const res = await f.onClose();
         if (callback) callback(res);
         return res;
       }),
@@ -252,7 +253,7 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
   }
 
   async closeFrame(arg?: unknown, callback?: Function) {
-    type F = DialogInterface.Frame<ValueOf<VC>>;
+    type F = Frame<View>;
     let frames: F[] = [];
     if (typeof arg === 'number') {
       const index = arg;
@@ -276,6 +277,11 @@ export default class Dialog<VC = {}> implements DialogInterface.Dialog<VC> {
   }
 
   getFrame(arg?: GetFrameParam) {
+    if (typeof arg === 'object') {
+      if (arg instanceof Frame) {
+        return this.frames.find((f) => f.id === arg.id);
+      }
+    }
     if (typeof arg === 'number') {
       const index = arg as number;
       return this.frames[index];

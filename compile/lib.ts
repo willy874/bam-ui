@@ -1,7 +1,7 @@
 import { UserConfig } from 'vite';
 import { pathResolve, getFrameworkDependPlugins } from './utils';
-import dts from 'vite-plugin-dts';
 import getCommonCompileConfig from './common';
+import dts from 'vite-plugin-dts';
 
 export default function (env: Env): UserConfig {
   const common = getCommonCompileConfig(env);
@@ -13,22 +13,26 @@ export default function (env: Env): UserConfig {
     //
     dts(),
   ];
+
   if (common.plugins) {
-    common.plugins.concat(...plugins);
+    common.plugins.push(...plugins);
   } else {
     common.plugins = plugins;
   }
 
   common.build = {
     lib: {
-      entry: pathResolve('src', 'packages', 'index.ts'),
+      entry: pathResolve('src', 'vue', 'export.ts'),
       name: 'bam-ui',
       fileName: (format) => `bam.${format}.js`,
     },
     rollupOptions: {
-      external: ['vue'],
+      external: ['bam-utility-plugins'],
     },
   };
+  if (frameworkType !== 'vanilla' && Array.isArray(common.build.rollupOptions?.external)) {
+    common.build.rollupOptions?.external.push(frameworkType);
+  }
 
   return common;
 }

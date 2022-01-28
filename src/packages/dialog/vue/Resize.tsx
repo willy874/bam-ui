@@ -1,43 +1,38 @@
-import { defineComponent } from 'vue';
+import { defineComponent, PropType } from 'vue';
 import { FrameComponentInstance } from './types';
-import { EventType } from '../types';
 import { findParentComponent } from '/@/vue/utils';
+import { DialogEventType } from '/@/enum';
 import Frame from './Frame';
+import css from '/@/style';
 
 export default defineComponent({
   name: 'bam-frame-resize',
 
   props: {
     tag: {
-      type: String,
+      type: String as PropType<keyof HTMLElementTagNameMap & string>,
       default: 'div',
     },
   },
 
   setup(props, context) {
     /**
-     * @Created
-     */
-    console.log(props);
-
-    /**
      * @Event
      */
-    const onDragstart = (FrameComponent: FrameComponentInstance, type: EventType) => {
+    const onDragstart = (FrameComponent: FrameComponentInstance, type: DialogEventType) => {
       return (e) => {
         if (FrameComponent) {
           FrameComponent.dialog.onDragstart(e, FrameComponent.frame, type);
         }
       };
     };
-    const onTouchstart = (FrameComponent: FrameComponentInstance, type: EventType) => {
-      return (e) => {
-        if (FrameComponent) {
-          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, type);
-        }
-      };
-    };
-    console.log(onTouchstart);
+    // const onTouchstart = (FrameComponent: FrameComponentInstance, type: DialogEventType) => {
+    //   return (e) => {
+    //     if (FrameComponent) {
+    //       FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, type);
+    //     }
+    //   };
+    // };
 
     const FrameComponent = findParentComponent<FrameComponentInstance>(Frame);
     /**
@@ -47,39 +42,39 @@ export default defineComponent({
       if (FrameComponent) {
         return (
           <>
-            <div
+            <props.tag
               class={{
-                'absolute inset-0 overflow-auto overscroll-none scroll-smooth':
+                [css.dialog_resize_mode]:
                   FrameComponent.frame.width !== 'auto' && FrameComponent.frame.height !== 'auto',
               }}
             >
               {context.slots.default && context.slots.default()}
-            </div>
+            </props.tag>
             {FrameComponent.frame.isResizable ? (
               <>
                 <div
-                  class="absolute -top-1 left-0 right-0 h-2 cursor-ns-resize"
+                  class={css.dialog_resize_top}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, EventType.RESIZE_TOP)}
+                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_TOP)}
                 ></div>
                 <div
-                  class="absolute -bottom-1 left-0 right-0 h-2 cursor-ns-resize"
+                  class={css.dialog_resize_bottom}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, EventType.RESIZE_BOTTOM)}
+                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_BOTTOM)}
                 ></div>
                 <div
-                  class="absolute -right-1 top-0 bottom-0 w-2 cursor-ew-resize"
+                  class={css.dialog_resize_right}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, EventType.RESIZE_RIGHT)}
+                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_RIGHT)}
                 ></div>
                 <div
-                  class="absolute -left-1 top-0 bottom-0 w-2 cursor-ew-resize"
+                  class={css.dialog_resize_left}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, EventType.RESIZE_LEFT)}
+                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_LEFT)}
                 ></div>
               </>
             ) : null}

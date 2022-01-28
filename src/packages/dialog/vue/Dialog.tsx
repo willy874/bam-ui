@@ -1,5 +1,4 @@
 import {
-  ref,
   reactive,
   computed,
   onMounted,
@@ -8,56 +7,41 @@ import {
   defineComponent,
   getCurrentInstance,
   markRaw,
+  PropType,
+  isReactive,
 } from 'vue';
-import FrameComponent from './Frame';
-import { createDialog } from '../core/control';
+import Dialog from '../core/dialog';
+import { useFrame, createDialog } from './control';
+import css from '/@/style';
+import Frame from './Frame';
 
 export default defineComponent({
   name: 'bam-dialog',
 
-  components: { BanFrame: FrameComponent },
-
   props: {
-    name: {
-      type: String,
-      default: 'Dialog',
-    },
-    backgroundMask: {
-      type: String,
-      default: 'transparent',
-    },
-    isBackgroundMask: {
-      type: Boolean,
-      default: true,
+    dialog: {
+      type: Object as PropType<Dialog | DialogInterface.DialogOptions>,
+      default: () => ({}),
     },
   },
 
-  setup(props, { emit, expose }) {
+  setup(props, { expose }) {
     const instance = getCurrentInstance();
+
     /**
      * @Data
      */
-    const id = ref(Symbol(props.name));
-    const native = createDialog({
-      name: id.value,
-      isBackgroundMask: props.isBackgroundMask,
-      hook: {
-        mount: (...args: any[]) => emit('mount', ...args),
-        unmount: (...args: any[]) => emit('unmount', ...args),
-        update: (...args: any[]) => emit('update', ...args),
-        bgclick: (...args: any[]) => emit('bgclick', ...args),
-      },
-    });
-    const dialog = reactive(native);
+    const _dialog = props.dialog instanceof Dialog ? props.dialog : createDialog(props.dialog);
+    const dialog = isReactive(_dialog) ? _dialog : reactive(_dialog);
+
     expose({
-      id,
       dialog,
     });
 
     /**
      * @Create
      */
-    const isBackgroundMask = computed(() => props.isBackgroundMask && dialog.frames.length);
+    const isBackgroundMask = computed(() => dialog.isBackgroundMask && dialog.frames.length);
 
     /**
      * @Event
@@ -99,18 +83,20 @@ export default defineComponent({
     return () => (
       <div
         ref={(e: Element) => dialog.setRootElement(e)}
-        class={{
-          'fixed inset-0': true,
-          'pointer-events-auto': isBackgroundMask.value,
-          'pointer-events-none': !isBackgroundMask.value,
-          'opacity-0': !dialog.frames.length,
+        class={css.dialog}
+        style={{
+          pointerEvents: isBackgroundMask.value ? 'auto' : 'none',
+          opacity: dialog.frames.length ? 1 : 0,
         }}
       >
-        <div class="absolute inset-0" style={{ background: props.backgroundMask }}></div>
+        <div class={css.dialog_container} style={{ background: dialog.backgroundMask }}></div>
         {dialog.frames.map((frame, index: number) => {
-          const target = native.getFrame(frame.id);
-          const View = markRaw(defineComponent(target?.view as object));
-          return View ? <ban-frame key={frame.id} z-index={index} frame={frame} dialog={dialog} view={View} /> : null;
+          const target = useFrame(frame.id, false);
+          if (!target) {
+            return null;
+          }
+          const View = markRaw(defineComponent(target.view as any));
+          return <Frame key={frame.id} z-index={index} frame={frame} dialog={dialog as Dialog} view={View} />;
         })}
       </div>
     );
