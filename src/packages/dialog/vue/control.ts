@@ -1,14 +1,15 @@
-import { reactive } from 'vue';
+import { reactive, UnwrapNestedRefs } from 'vue';
 import type { ViewComponentOption } from './types';
 import { createDialog as _createDialog, useDialog as _useDialog, useFrame as _useFrame } from '../core/control';
 import { DialogType } from '/#/dialog';
+import Dialog from '../core/dialog';
 
-export function createDialog<View = ViewComponentOption>(options: DialogType.DialogOptions<View>) {
+export function createDialog<View = ViewComponentOption>(options: DialogType.DialogOptions<View> = {}) {
   const dialog = _createDialog<View>(options, (dialog) => reactive(dialog));
   return dialog;
 }
 
-export function useDialog<View = ViewComponentOption>(id?: symbol) {
+export function useDialog<View = ViewComponentOption>(id?: symbol): UnwrapNestedRefs<Dialog<View>> {
   return reactive(_useDialog<View>(id));
 }
 

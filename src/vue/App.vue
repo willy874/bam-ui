@@ -6,7 +6,7 @@ import { BamDialog, createDialog, useDialog } from 'bam-ui'
 const onOpenDialog = async () => {
   const d = useDialog()
   const frame = await d.openFrame({ view: DialogView })
-  console.log('frame', frame);
+  console.log('frame',frame);
 }
 
 const dialog = createDialog({

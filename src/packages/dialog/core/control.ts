@@ -13,7 +13,7 @@ function useHandler(dialog: Dialog, callback?: Function) {
 }
 
 export function createDialog<View = DialogType.BaseView>(
-  options: DialogType.DialogOptions<View>,
+  options: DialogType.DialogOptions<View> = {},
   pluginHandler?: Function,
 ) {
   const dialog = new Dialog({

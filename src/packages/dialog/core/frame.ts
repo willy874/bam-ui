@@ -205,11 +205,11 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     });
   }
 
-  onResize(event: Event) {
+  onResize(...args: any[]) {
     this.setPosition(this.position);
     this.setBoxSize();
     this.hook.update.forEach((event) => {
-      event.apply(this, event);
+      event.apply(this, args);
     });
   }
 
