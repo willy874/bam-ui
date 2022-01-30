@@ -1,7 +1,7 @@
 import { defineComponent, PropType } from 'vue';
 import { FrameComponentInstance } from './types';
 import { findParentComponent } from '/@/vue/utils';
-import { DialogEventType } from '/@/enum';
+import { DragEventType } from '/@/enum';
 import Frame from './Frame';
 import css from '/@/style';
 
@@ -19,14 +19,14 @@ export default defineComponent({
     /**
      * @Event
      */
-    const onDragstart = (FrameComponent: FrameComponentInstance, type: DialogEventType) => {
+    const onDragstart = (FrameComponent: FrameComponentInstance, type: DragEventType) => {
       return (e) => {
         if (FrameComponent) {
           FrameComponent.dialog.onDragstart(e, FrameComponent.frame, type);
         }
       };
     };
-    // const onTouchstart = (FrameComponent: FrameComponentInstance, type: DialogEventType) => {
+    // const onTouchstart = (FrameComponent: FrameComponentInstance, type: DragEventType) => {
     //   return (e) => {
     //     if (FrameComponent) {
     //       FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, type);
@@ -56,25 +56,25 @@ export default defineComponent({
                   class={css.dialog_resize_top}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_TOP)}
+                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_TOP)}
                 ></div>
                 <div
                   class={css.dialog_resize_bottom}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_BOTTOM)}
+                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_BOTTOM)}
                 ></div>
                 <div
                   class={css.dialog_resize_right}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_RIGHT)}
+                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_RIGHT)}
                 ></div>
                 <div
                   class={css.dialog_resize_left}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DialogEventType.RESIZE_LEFT)}
+                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_LEFT)}
                 ></div>
               </>
             ) : null}

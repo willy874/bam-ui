@@ -1,5 +1,6 @@
 import Frame from './frame';
 import Dialog from './dialog';
+import { DialogType } from '/#/dialog';
 
 const DialogCollection: { [key: symbol]: () => Dialog } = {};
 const FrameCollection: { [key: symbol]: Frame } = {};
@@ -11,8 +12,8 @@ function useHandler(dialog: Dialog, callback?: Function) {
   return result instanceof Dialog ? result : dialog;
 }
 
-export function createDialog<View = DialogInterface.BaseView>(
-  options: DialogInterface.DialogOptions<View>,
+export function createDialog<View = DialogType.BaseView>(
+  options: DialogType.DialogOptions<View>,
   pluginHandler?: Function,
 ) {
   const dialog = new Dialog({
@@ -28,7 +29,7 @@ export function createDialog<View = DialogInterface.BaseView>(
   return dialog;
 }
 
-export function useDialog<View = DialogInterface.BaseView>(id?: symbol) {
+export function useDialog<View = DialogType.BaseView>(id?: symbol) {
   if (!getDefaultDialog) {
     throw new Error('not created dialog');
   }
@@ -36,7 +37,7 @@ export function useDialog<View = DialogInterface.BaseView>(id?: symbol) {
   return getDialog() as Dialog<View>;
 }
 
-export function createFrame<View>(options: DialogInterface.FrameOptions<View>): Frame<View> {
+export function createFrame<View>(options: DialogType.FrameOptions<View>): Frame<View> {
   const frame = new Frame<View>(options);
   FrameCollection[frame.id] = frame;
   return frame;

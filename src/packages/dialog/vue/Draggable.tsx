@@ -1,7 +1,7 @@
 import { defineComponent, PropType } from 'vue';
 import { FrameComponentInstance } from './types';
 import { findParentComponent } from '/@/vue/utils';
-import { DialogEventType } from '/@/enum';
+import { DragEventType } from '/@/enum';
 import Frame from './Frame';
 
 export default defineComponent({
@@ -21,14 +21,14 @@ export default defineComponent({
     const onDragstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onDragstart(e, FrameComponent.frame, DialogEventType.DRAG_MOVE);
+          FrameComponent.dialog.onDragstart(e, FrameComponent.frame, DragEventType.DRAG_MOVE);
         }
       };
     };
     const onTouchstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, DialogEventType.DRAG_MOVE);
+          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, DragEventType.DRAG_MOVE);
         }
       };
     };

@@ -6,10 +6,7 @@ export default ({ command, mode }: ConfigEnv): UserConfig => {
   console.log(`http://localhost:3011/`);
 
   const env: Env = loadEnv(mode, process.cwd());
-
-  if (command === 'serve') {
-    return development(env);
-  } else {
-    return build(env);
-  }
+  let config = command === 'serve' ? development(env) : build(env);
+  // console.log(config);
+  return config;
 };

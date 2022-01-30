@@ -1,4 +1,4 @@
-declare namespace DialogInterface {
+export declare namespace DialogType {
   class Dialog<View = BaseView> {
     id: symbol;
     frames: Array<Frame<View>>;

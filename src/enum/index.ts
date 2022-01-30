@@ -1,4 +1,4 @@
-export enum DialogEventType {
+export enum DragEventType {
   NORMAL = 0,
   DRAG_MOVE = 1,
   RESIZE_TOP = 2,

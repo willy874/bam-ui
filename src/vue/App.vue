@@ -1,12 +1,12 @@
 <script setup lang="tsx">
 import HelloWorld from './components/HelloWorld.vue'
 import DialogView from './components/DialogView.vue'
-import { BamDialog, createDialog, useDialog } from './components/dialog'
+import { BamDialog, createDialog, useDialog } from 'bam-ui'
 
 const onOpenDialog = async () => {
   const d = useDialog()
-  const V = await d.openFrame({ view: DialogView })
-  console.log(V);
+  const frame = await d.openFrame({ view: DialogView })
+  console.log('frame', frame);
 }
 
 const dialog = createDialog({

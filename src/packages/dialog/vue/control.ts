@@ -1,8 +1,9 @@
 import { reactive } from 'vue';
 import type { ViewComponentOption } from './types';
 import { createDialog as _createDialog, useDialog as _useDialog, useFrame as _useFrame } from '../core/control';
+import { DialogType } from '/#/dialog';
 
-export function createDialog<View = ViewComponentOption>(options: DialogInterface.DialogOptions<View>) {
+export function createDialog<View = ViewComponentOption>(options: DialogType.DialogOptions<View>) {
   const dialog = _createDialog<View>(options, (dialog) => reactive(dialog));
   return dialog;
 }

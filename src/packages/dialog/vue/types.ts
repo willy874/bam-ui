@@ -1,6 +1,7 @@
 import { ComponentPublicInstance, DefineComponent } from 'vue';
 import type Dialog from '../core/dialog';
 import type Frame from '../core/frame';
+import { DialogType } from '/#/dialog';
 
 export type AnyDefineComponent = DefineComponent<
   unknown,
@@ -27,4 +28,4 @@ export type FrameComponentInstance = ComponentPublicInstance & FrameComponentPro
 
 export type ViewComponentOption<C extends AnyDefineComponent = AnyDefineComponent> = C extends AnyDefineComponent
   ? C
-  : DialogInterface.BaseView;
+  : DialogType.BaseView;

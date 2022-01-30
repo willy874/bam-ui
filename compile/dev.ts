@@ -1,5 +1,5 @@
-import { UserConfig } from 'vite';
-import { getFrameworkDependPlugins } from './utils';
+import { UserConfig, AliasOptions } from 'vite';
+import { getFrameworkDependPlugins, pathResolve } from './utils';
 import legacy from '@vitejs/plugin-legacy';
 import purgeIcons from 'vite-plugin-purge-icons';
 import getCommonCompileConfig from './common';
@@ -8,6 +8,20 @@ import os from 'os';
 export default function (env: Env): UserConfig {
   const common = getCommonCompileConfig(env);
   const { VITE_PORT, VITE_DOCKER_PORT, VITE_FRAMEWORK_TYPE } = env;
+
+  const alias: AliasOptions = [
+    {
+      find: /\/@\//,
+      replacement: pathResolve('src') + '/',
+    },
+    {
+      find: /\/#\//,
+      replacement: pathResolve('types') + '/',
+    },
+  ];
+  if (common.resolve) {
+    common.resolve.alias = alias;
+  }
 
   const port = Number(VITE_PORT) || 8000;
   const dockerPort = os.type() == 'Linux' ? Number(VITE_DOCKER_PORT) : port;

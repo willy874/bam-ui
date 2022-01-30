@@ -15,14 +15,13 @@ declare interface Env {
 declare interface ImportMetaEnv extends Env {}
 
 declare type ValueOf<T> = T[keyof T];
+declare interface CssModuleBase {
+  [key: string]: string;
+}
 
 declare module '*.module.scss' {
   const classes: {
     readonly [key: string]: string;
   };
   export default classes;
-}
-
-declare interface CssModuleBase {
-  [key: string]: string;
 }

@@ -2,22 +2,23 @@ import Frame from './frame';
 import { getViewportOffset, clearDragImage } from 'bam-utility-plugins';
 import { createFrame } from './control';
 import { isSymbol } from '/@/utils';
-import { DialogEventType } from '/@/enum';
+import { DragEventType } from '/@/enum';
+import { DialogType } from '/#/dialog';
 
 type GetFrameParam = Frame | number | symbol;
 
-function isFrame<View = DialogInterface.BaseView>(f: unknown): f is Frame<View> {
+function isFrame<View = DialogType.BaseView>(f: unknown): f is Frame<View> {
   return f instanceof Frame;
 }
 
 const dialogHooks = 'mount,unmount,update,bgclick'.split(',');
-export default class Dialog<View = DialogInterface.BaseView> implements DialogInterface.Dialog<View> {
+export default class Dialog<View = DialogType.BaseView> implements DialogType.Dialog<View> {
   public readonly id: symbol;
   public readonly frames: Array<Frame<View>> = [];
   public readonly isBackgroundMask: boolean;
   public readonly backgroundMask: string;
   public focusFrame: Frame<View> | null = null;
-  public eventType: DialogEventType = DialogEventType.NORMAL;
+  public eventType: DragEventType = DragEventType.NORMAL;
   public element: Element | null = null;
   public touches: Touch[] = [];
   public prevTouches: Touch[] = [];
@@ -25,7 +26,7 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
     [type: string]: Function[];
   };
 
-  constructor(args: DialogInterface.DialogConstructor) {
+  constructor(args: DialogType.DialogConstructor) {
     this.id = args.id;
     this.isBackgroundMask = args.isBackgroundMask;
     this.backgroundMask = args.backgroundMask;
@@ -122,7 +123,7 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
     }
   }
 
-  onDragstart(event: DragEvent, id: GetFrameParam, type: DialogEventType) {
+  onDragstart(event: DragEvent, id: GetFrameParam, type: DragEventType) {
     const frame = this.getFrame(id);
     if (frame && frame.element && event.dataTransfer) {
       clearDragImage(event);
@@ -138,11 +139,11 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
     }
   }
 
-  onTouchstart(event: TouchEvent, id: GetFrameParam, type: DialogEventType) {
+  onTouchstart(event: TouchEvent, id: GetFrameParam, type: DragEventType) {
     const frame = this.getFrame(id);
     if (frame) {
       this.touches = Array.from(event.touches);
-      if (frame.element && type === DialogEventType.DRAG_MOVE) {
+      if (frame.element && type === DragEventType.DRAG_MOVE) {
         /** 觸控點相對於視窗的座標 **/
         const touch = this.touches[0];
         const viewPort = getViewportOffset(frame.element);
@@ -162,14 +163,14 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
         pageX: event.pageX,
         pageY: event.pageY,
       };
-      if (this.eventType === DialogEventType.DRAG_MOVE) {
+      if (this.eventType === DragEventType.DRAG_MOVE) {
         frame.onDragmove(pos);
       }
       if (
-        this.eventType === DialogEventType.RESIZE_TOP ||
-        this.eventType === DialogEventType.RESIZE_LEFT ||
-        this.eventType === DialogEventType.RESIZE_BOTTOM ||
-        this.eventType === DialogEventType.RESIZE_RIGHT
+        this.eventType === DragEventType.RESIZE_TOP ||
+        this.eventType === DragEventType.RESIZE_LEFT ||
+        this.eventType === DragEventType.RESIZE_BOTTOM ||
+        this.eventType === DragEventType.RESIZE_RIGHT
       ) {
         frame.onDragresize(pos, this.eventType);
       }
@@ -182,7 +183,7 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
     const frame = this.focusFrame;
     if (frame) {
       this.touches = Array.from(event.touches);
-      if (this.eventType === DialogEventType.DRAG_MOVE && this.touches.length === 1) {
+      if (this.eventType === DragEventType.DRAG_MOVE && this.touches.length === 1) {
         const touch = this.touches[0];
         frame.onDragmove({
           pageX: touch.pageX,
@@ -196,7 +197,7 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
   onDragend(event: DragEvent) {
     const frame = this.focusFrame;
     if (frame) {
-      this.eventType = DialogEventType.NORMAL;
+      this.eventType = DragEventType.NORMAL;
       frame.mouseOffsetX = 0;
       frame.mouseOffsetY = 0;
       frame.onDragend(event);
@@ -208,7 +209,7 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
     if (frame) {
       this.touches = Array.from(event.touches);
       if (this.touches.length === 0) {
-        this.eventType = DialogEventType.NORMAL;
+        this.eventType = DragEventType.NORMAL;
         frame.mouseOffsetX = 0;
         frame.mouseOffsetY = 0;
       }
@@ -216,7 +217,7 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
     }
   }
 
-  openFrame<V = View>(frame: DialogInterface.OpenFrameOptions<V> | Frame<V>): Promise<Frame<V>> {
+  openFrame<V = View>(frame: DialogType.OpenFrameOptions<V> | Frame<V>): Promise<Frame<V>> {
     return new Promise((resolve, reject) => {
       if (isFrame<View>(frame)) {
         frame.dialogId = this.id;
@@ -224,7 +225,7 @@ export default class Dialog<View = DialogInterface.BaseView> implements DialogIn
         frame.onError = reject;
         this.frames.push(frame);
       } else {
-        const target = frame as DialogInterface.OpenFrameOptions<V>;
+        const target = frame as DialogType.OpenFrameOptions<V>;
         const newFrame = createFrame<V>({
           ...target,
           dialogId: Symbol('Frame'),

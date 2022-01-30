@@ -14,13 +14,14 @@ import Dialog from '../core/dialog';
 import { useFrame, createDialog } from './control';
 import css from '/@/style';
 import Frame from './Frame';
+import { DialogType } from '/#/dialog';
 
 export default defineComponent({
   name: 'bam-dialog',
 
   props: {
     dialog: {
-      type: Object as PropType<Dialog | DialogInterface.DialogOptions>,
+      type: Object as PropType<Dialog | DialogType.DialogOptions>,
       default: () => ({}),
     },
   },

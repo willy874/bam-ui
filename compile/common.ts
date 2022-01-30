@@ -1,5 +1,4 @@
 import { UserConfig } from 'vite';
-import { pathResolve } from './utils';
 
 export default function getCommonCompileConfig(env: Env): UserConfig {
   const { VITE_FRAMEWORK_TYPE } = env;
@@ -7,18 +6,7 @@ export default function getCommonCompileConfig(env: Env): UserConfig {
   console.log(framework);
 
   return {
-    resolve: {
-      alias: [
-        {
-          find: /\/@\//,
-          replacement: pathResolve('src') + '/',
-        },
-        {
-          find: /\/#\//,
-          replacement: pathResolve('types') + '/',
-        },
-      ],
-    },
+    resolve: {},
     css: {
       modules: {
         generateScopedName: 'bam-[local]',
