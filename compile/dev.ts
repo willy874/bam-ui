@@ -18,6 +18,10 @@ export default function (env: Env): UserConfig {
       find: /\/#\//,
       replacement: pathResolve('types') + '/',
     },
+    {
+      find: /\/%\//,
+      replacement: pathResolve('dist') + '/',
+    },
   ];
   if (common.resolve) {
     common.resolve.alias = alias;

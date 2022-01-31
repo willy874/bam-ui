@@ -1,69 +1,45 @@
+import type { DialogConstructor, OpenFrameOptions, DialogHookProperty } from './types';
 import Frame from './frame';
 import { getViewportOffset, clearDragImage } from 'bam-utility-plugins';
-import { createFrame } from './control';
+import { createFrame, isFrame } from './utils';
 import { isSymbol } from '/@/utils';
 import { DragEventType } from '/@/enum';
-import { DialogType } from '/#/dialog';
 
 type GetFrameParam = Frame | number | symbol;
 
-function isFrame<View = DialogType.BaseView>(f: unknown): f is Frame<View> {
-  return f instanceof Frame;
-}
+const hook: DialogHookProperty = {
+  mount: [],
+  unmount: [],
+  update: [],
+  bgclick: [],
+};
 
-const dialogHooks = 'mount,unmount,update,bgclick'.split(',');
-export default class Dialog<View = DialogType.BaseView> implements DialogType.Dialog<View> {
+export default class Dialog {
   public readonly id: symbol;
-  public readonly frames: Array<Frame<View>> = [];
+  public readonly frames: Array<Frame> = [];
   public readonly isBackgroundMask: boolean;
   public readonly backgroundMask: string;
-  public focusFrame: Frame<View> | null = null;
+  public focusFrame: Frame | null = null;
   public eventType: DragEventType = DragEventType.NORMAL;
   public element: Element | null = null;
   public touches: Touch[] = [];
   public prevTouches: Touch[] = [];
-  private hook: {
-    [type: string]: Function[];
-  };
+  private hook: DialogHookProperty;
 
-  constructor(args: DialogType.DialogConstructor) {
+  constructor(args: DialogConstructor) {
     this.id = args.id;
     this.isBackgroundMask = args.isBackgroundMask;
     this.backgroundMask = args.backgroundMask;
-    this.hook = {};
-    dialogHooks.forEach((hook) => {
-      this.hook[hook] = [];
+    this.hook = { ...hook };
+    Object.keys(hook).forEach((hook) => {
       if (args.hook) {
         this.on(hook, args.hook[hook]);
       }
     });
   }
 
-  setRootElement(value: Element) {
-    this.frames.forEach((p) => {
-      if (p instanceof Frame) {
-      }
-    });
-    this.element = value;
-  }
-
-  setFrameItemElement(index: number) {
-    return (value: Element) => {
-      this.frames[index].element = value;
-    };
-  }
-
-  sortToRight(id: GetFrameParam) {
-    const frame = this.getFrame(id);
-    if (frame) {
-      const indexOf = this.frames.map((p) => p.id).indexOf(frame.id);
-      const frames = this.frames.splice(indexOf, 1);
-      this.frames.push(...frames);
-    }
-  }
-
   on(type: string, callback?: Function) {
-    if (callback && dialogHooks.includes(type)) {
+    if (callback && Object.keys(hook).includes(type)) {
       this.hook[type].push(callback);
       return true;
     }
@@ -107,7 +83,7 @@ export default class Dialog<View = DialogType.BaseView> implements DialogType.Di
     });
   }
 
-  onBgclick(e: PointerEvent) {
+  onBgclick(e: MouseEvent) {
     if (this.element && e.target instanceof Node && this.element.contains(e.target)) {
       this.hook.bgclick.forEach((event) => {
         event.apply(this, e);
@@ -123,7 +99,7 @@ export default class Dialog<View = DialogType.BaseView> implements DialogType.Di
     }
   }
 
-  onDragstart(event: DragEvent, id: GetFrameParam, type: DragEventType) {
+  onDragstart(event: DragEvent, id: symbol, type: DragEventType) {
     const frame = this.getFrame(id);
     if (frame && frame.element && event.dataTransfer) {
       clearDragImage(event);
@@ -139,7 +115,7 @@ export default class Dialog<View = DialogType.BaseView> implements DialogType.Di
     }
   }
 
-  onTouchstart(event: TouchEvent, id: GetFrameParam, type: DragEventType) {
+  onTouchstart(event: TouchEvent, id: symbol, type: DragEventType) {
     const frame = this.getFrame(id);
     if (frame) {
       this.touches = Array.from(event.touches);
@@ -217,33 +193,45 @@ export default class Dialog<View = DialogType.BaseView> implements DialogType.Di
     }
   }
 
-  openFrame<V = View>(frame: DialogType.OpenFrameOptions<V> | Frame<V>): Promise<Frame<V>> {
-    return new Promise((resolve, reject) => {
-      if (isFrame<View>(frame)) {
-        frame.dialogId = this.id;
-        frame.close = resolve;
-        frame.onError = reject;
-        this.frames.push(frame);
-      } else {
-        const target = frame as DialogType.OpenFrameOptions<V>;
-        const newFrame = createFrame<V>({
-          ...target,
-          dialogId: Symbol('Frame'),
-          close: resolve,
-          onError: reject,
-        });
-        if (isFrame<View>(newFrame)) {
-          this.frames.push(newFrame);
-        }
+  setRootElement<C = {}>(value: Element | C) {
+    this.element = value instanceof Element ? value : null;
+  }
+
+  setFrameItemElement(index: number) {
+    return (value: Element) => {
+      this.frames[index].element = value;
+    };
+  }
+
+  sortToRight(id: symbol) {
+    const frame = this.getFrame(id);
+    if (frame) {
+      const indexOf = this.frames.map((p) => p.id).indexOf(frame.id);
+      const frames = this.frames.splice(indexOf, 1);
+      this.frames.push(...frames);
+    }
+  }
+
+  openFrame<V>(view: (() => V) | Frame<V>, options?: OpenFrameOptions): Promise<Frame<V>> {
+    return new Promise(async (resolve, reject) => {
+      if (isFrame<V>(view)) {
+        view.close = resolve;
+        view.onError = reject;
       }
-      try {
-      } catch (error) {
-        reject(error);
-      }
+      const frame = isFrame<V>(view)
+        ? view
+        : createFrame<V>({
+            ...options,
+            view: await view(),
+            close: resolve,
+            onError: reject,
+          });
+
+      this.frames.push(frame);
     });
   }
 
-  private async callbackCloseFrame(frames: Frame<View>[], callback?: Function) {
+  private async callbackCloseFrame(frames: Frame[], callback?: Function) {
     return await Promise.all(
       frames.map(async (f) => {
         const res = await f.onClose();
@@ -254,7 +242,7 @@ export default class Dialog<View = DialogType.BaseView> implements DialogType.Di
   }
 
   async closeFrame(arg?: unknown, callback?: Function) {
-    type F = Frame<View>;
+    type F = Frame;
     let frames: F[] = [];
     if (typeof arg === 'number') {
       const index = arg;
@@ -277,7 +265,7 @@ export default class Dialog<View = DialogType.BaseView> implements DialogType.Di
     return await this.callbackCloseFrame(frames, callback);
   }
 
-  getFrame(arg?: GetFrameParam) {
+  _getFrame(arg?: GetFrameParam) {
     if (typeof arg === 'object') {
       if (arg instanceof Frame) {
         return this.frames.find((f) => f.id === arg.id);
@@ -291,5 +279,8 @@ export default class Dialog<View = DialogType.BaseView> implements DialogType.Di
       const id = arg as symbol;
       return this.frames.find((f) => f.id === id);
     }
+  }
+  getFrame(arg?: GetFrameParam) {
+    return this._getFrame(arg);
   }
 }

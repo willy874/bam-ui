@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
-import { useDialog, BamFrameResize, BamFrameDraggable, FrameData } from './dialog'
-const props = defineProps({
-  data: Object as PropType<FrameData>
-})
+// import { useDialog, BamFrameResize, BamFrameDraggable } from '/%/bam.es'
+// import type { FrameData } from '/%/src/vue/export'
+// import { useDialog, BamFrameResize, BamFrameDraggable, FrameData } from 'bam-ui'
+import { useDialog, BamFrameResize, BamFrameDraggable, FrameData } from '../export'
 
+const props = defineProps({
+  frameData: Object as PropType<FrameData>
+})
 const dialog = useDialog()
-const onClose = () => dialog.closeFrame(props.data?.id)
+
+const onClose = () => {
+  dialog.closeFrame(props.frameData?.id)
+  console.log(dialog.frames);
+}
 
 </script>
 
@@ -27,10 +34,4 @@ const onClose = () => dialog.closeFrame(props.data?.id)
 .view {
   background-color: aliceblue;
 }
-.box {
-  background-color: aqua;
-  width: 100px;
-  height: 100px;
-}
-
 </style>

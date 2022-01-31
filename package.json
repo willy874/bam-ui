@@ -23,6 +23,7 @@
     }
   },
   "dependencies": {
+    "bam-ui": "0.0.7",
     "bam-utility-plugins": "^0.2.0"
   },
   "peerDependencies": {

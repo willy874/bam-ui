@@ -1,13 +1,23 @@
+import type { FrameConstructor, FramePosition, PagePosition, FrameHookProperty } from './types';
 import { getViewportOffset } from 'bam-utility-plugins';
-import { useDialog } from './control';
+import { useDialog } from './utils';
 import { DragEventType } from '/@/enum';
-import { DialogType } from '/#/dialog';
+import Dialog from './dialog';
 
-const frameHooks = ('mount,unmount,update,bgclick,' + 'dragstart,dragover,dragend,touchstart,touchmove,touchend').split(
-  ',',
-);
+const hook: FrameHookProperty = {
+  mount: [],
+  unmount: [],
+  update: [],
+  bgclick: [],
+  dragstart: [],
+  dragover: [],
+  dragend: [],
+  touchstart: [],
+  touchmove: [],
+  touchend: [],
+};
 
-export default class Frame<View = DialogType.BaseView> implements DialogType.Frame<View> {
+export default class Frame<View = any> {
   id: symbol;
   dialogId: symbol;
   view: View;
@@ -16,7 +26,7 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
   isDraggable: boolean;
   isResizable: boolean;
   isFull: boolean = false;
-  position: DialogType.FramePosition;
+  position: FramePosition;
   element: Element | null = null;
   top: string = '0px';
   left: string = '0px';
@@ -26,15 +36,13 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
   mouseOffsetY = 0;
   close: Function | null;
   onError: Function;
-  hook: {
-    [type: string]: Function[];
-  };
+  hook: FrameHookProperty;
   resizeObserver: ResizeObserver | null = null;
   isDragged: boolean = false;
   isResized: boolean = false;
   dialogPadding: number = 60;
 
-  constructor(args: DialogType.FrameConstructor<View>) {
+  constructor(args: FrameConstructor<View>) {
     this.id = Symbol('Frame');
     this.dialogId = args.dialogId;
     this.view = args.view;
@@ -48,9 +56,8 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     this.height = typeof args.height === 'number' ? args.height + 'px' : args.height || 'auto';
     this.close = args.close;
     this.onError = args.onError;
-    this.hook = {};
-    frameHooks.forEach((hook) => {
-      this.hook[hook] = [];
+    this.hook = { ...hook };
+    Object.keys(hook).forEach((hook) => {
       if (args.hook) {
         this.on(hook, args.hook[hook]);
       }
@@ -58,8 +65,8 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     this.setPosition(args.position || 'auto');
   }
 
-  setFrameElement(value: Element) {
-    this.element = value;
+  setFrameElement<C = {}>(value: Element | C) {
+    this.element = value instanceof Element ? value : null;
   }
 
   setDraggable(bool: boolean) {
@@ -90,8 +97,12 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     this.isFull = bool;
   }
 
-  setPosition(position: DialogType.FramePosition) {
+  setPosition(position: FramePosition) {
     const dialog = useDialog(this.dialogId);
+    this._setPosition(position, dialog);
+  }
+
+  protected _setPosition(position: FramePosition, dialog: Dialog) {
     if (typeof position === 'object') {
       this.top = typeof position.top === 'number' ? position.top + 'px' : position.top || '0';
       this.left = typeof position.left === 'number' ? position.left + 'px' : position.left || '0';
@@ -136,7 +147,7 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
   }
 
   on(type: string, callback?: Function) {
-    if (callback && frameHooks.includes(type)) {
+    if (callback && Object.keys(hook).includes(type)) {
       this.hook[type].push(callback);
       return true;
     }
@@ -160,14 +171,18 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     return false;
   }
 
-  async onClose() {
-    const dialog = useDialog(this.dialogId);
+  async _onClose(dialog: Dialog) {
     const indexOf = dialog.frames.map((f) => f.id).indexOf(this.id);
     const frames = dialog.frames.splice(indexOf, 1);
     const target = frames[0];
     if (target?.close) await target.close(dialog);
     this.close = null;
     return target;
+  }
+
+  onClose() {
+    const dialog = useDialog(this.dialogId);
+    return this._onClose(dialog);
   }
 
   onMount(...args: any[]) {
@@ -225,7 +240,7 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     });
   }
 
-  onDragmove(pos: DialogType.PagePosition) {
+  onDragmove(pos: PagePosition) {
     this.isFull = false;
     if (this.element && this.isDraggable) {
       this.isDragged = true;
@@ -256,7 +271,7 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     }
   }
 
-  onDragresize(pos: DialogType.PagePosition, type: DragEventType) {
+  onDragresize(pos: PagePosition, type: DragEventType) {
     this.isFull = false;
     if (this.element && this.isResizable) {
       this.isResized = true;
@@ -307,5 +322,9 @@ export default class Frame<View = DialogType.BaseView> implements DialogType.Fra
     this.hook.touchend.forEach((event) => {
       event.apply(this, args);
     });
+  }
+
+  createVNode(): any {
+    return this.view;
   }
 }

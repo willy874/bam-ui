@@ -1,8 +1,9 @@
-export * from '/@/packages/dialog/vue/control';
+export * from '../../packages/dialog/vue/utils';
 export * from '/@/packages/dialog/core/interface';
-import Dialog from '/@/packages/dialog/core/dialog';
-import Frame from '/@/packages/dialog/core/frame';
-import BamDialog from '/@/packages/dialog/vue/Dialog';
+export * from '/@/packages/dialog/core/types';
+import Dialog from '/@/packages/dialog/vue/dialog-class';
+import Frame from '/@/packages/dialog/vue/frame-class';
+import BamDialog from '../../packages/dialog/vue/Dialog';
 import BamFrameDraggable from '/@/packages/dialog/vue/Draggable';
 import BamFrameResize from '/@/packages/dialog/vue/Resize';
 

@@ -1,18 +1,23 @@
-<script setup lang="tsx">
+<script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
 import DialogView from './components/DialogView.vue'
-import { BamDialog, createDialog, useDialog } from 'bam-ui'
+import { BamDialog, createDialog, useDialog } from './export'
+// import { BamDialog, createDialog, useDialog } from '/%/bam.es'
+// import '/%/style.css'
+// import { BamDialog, createDialog, useDialog } from 'bam-ui'
 
 const onOpenDialog = async () => {
   const d = useDialog()
-  const frame = await d.openFrame({ view: DialogView })
+  const frame = await d.openFrame(() => DialogView)
   console.log('frame',frame);
 }
 
 const dialog = createDialog({
   backgroundMask: '#00000044',
-  // isBackgroundMask: false
 })
+console.log(dialog);
+
+
 </script>
 
 <template>
@@ -23,7 +28,7 @@ const dialog = createDialog({
       <button type="button" @click="onOpenDialog">打開</button>
       <div>123</div>
     </div>
-    <BamDialog :dialog="dialog" />
+    <BamDialog :dialog="{ backgroundMask: '#00000044' }" />
     <!-- <BamDialog :is-background-mask="false" /> -->
   </div>
 </template>

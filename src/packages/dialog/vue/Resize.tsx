@@ -22,14 +22,14 @@ export default defineComponent({
     const onDragstart = (FrameComponent: FrameComponentInstance, type: DragEventType) => {
       return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onDragstart(e, FrameComponent.frame, type);
+          FrameComponent.dialog.onDragstart(e, FrameComponent.frame.id, type);
         }
       };
     };
     // const onTouchstart = (FrameComponent: FrameComponentInstance, type: DragEventType) => {
     //   return (e) => {
     //     if (FrameComponent) {
-    //       FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, type);
+    //       FrameComponent.dialog.onTouchstart(e, FrameComponent.frame.id, type);
     //     }
     //   };
     // };

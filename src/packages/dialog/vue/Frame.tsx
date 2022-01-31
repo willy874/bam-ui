@@ -1,24 +1,34 @@
-import { onMounted, onUpdated, onUnmounted, computed, defineComponent, getCurrentInstance } from 'vue';
-import type { DefineComponent, PropType } from 'vue';
-import Dialog from '../core/dialog';
-import Frame from '../core/frame';
+import {
+  onMounted,
+  onUpdated,
+  onUnmounted,
+  computed,
+  defineComponent,
+  getCurrentInstance,
+  isVNode,
+  VNode,
+  DefineComponent,
+} from 'vue';
+import type { PropType } from 'vue';
+import DialogClass from './dialog-class';
+import FrameClass from './frame-class';
 import { getFrameData, getFrameMethods } from '../core/interface';
 import { getTransformStyleString } from 'bam-utility-plugins';
 import css from '/@/style';
 
 export default defineComponent({
-  name: 'bam-frame',
+  name: 'BamFrame',
   props: {
     dialog: {
-      type: Object as PropType<Dialog>,
+      type: Object as PropType<DialogClass>,
       required: true,
     },
     view: {
-      type: Object as PropType<DefineComponent>,
+      type: Object as PropType<VNode | DefineComponent>,
       required: true,
     },
     frame: {
-      type: Object as PropType<Frame>,
+      type: Object as PropType<FrameClass>,
       required: true,
     },
     zIndex: {
@@ -62,7 +72,6 @@ export default defineComponent({
     /**
      * @Render
      */
-    const View = props.view;
     return () => (
       <div
         ref={(e: Element) => props.frame.setFrameElement(e)}
@@ -79,12 +88,16 @@ export default defineComponent({
         onClick={(e) => e.stopPropagation()}
         onMousedown={() => props.dialog.sortToRight(props.frame.id)}
       >
-        <View
-          class={css.dialog_view}
-          frame-data={frameData.value}
-          frame-methods={frameMethods.value}
-          frame-props={props.frame.props}
-        />
+        {isVNode(props.view) ? (
+          props.view
+        ) : (
+          <props.view
+            class={css.dialog_view}
+            frame-data={frameData.value}
+            frame-methods={frameMethods.value}
+            frame-props={props.frame.props}
+          />
+        )}
       </div>
     );
   },

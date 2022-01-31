@@ -1,7 +1,6 @@
-import { ComponentPublicInstance, DefineComponent } from 'vue';
+import { ComponentOptionsBase, ComponentPublicInstance, DefineComponent, VNode } from 'vue';
 import type Dialog from '../core/dialog';
 import type Frame from '../core/frame';
-import { DialogType } from '/#/dialog';
 
 export type AnyDefineComponent = DefineComponent<
   unknown,
@@ -17,6 +16,19 @@ export type AnyDefineComponent = DefineComponent<
   unknown,
   unknown
 > & {};
+
+export type AnyComponentPublicInstance = ComponentPublicInstance<
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  {},
+  false,
+  ComponentOptionsBase<any, any, any, any, any, any, any, any, any, {}>
+>;
 export interface FrameComponentProps<V = AnyDefineComponent> {
   dialog: Dialog;
   view: V;
@@ -26,6 +38,4 @@ export interface FrameComponentProps<V = AnyDefineComponent> {
 
 export type FrameComponentInstance = ComponentPublicInstance & FrameComponentProps;
 
-export type ViewComponentOption<C extends AnyDefineComponent = AnyDefineComponent> = C extends AnyDefineComponent
-  ? C
-  : DialogType.BaseView;
+export type ViewComponentOption = AnyDefineComponent | VNode;

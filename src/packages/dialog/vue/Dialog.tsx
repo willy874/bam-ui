@@ -1,5 +1,4 @@
 import {
-  reactive,
   computed,
   onMounted,
   onUpdated,
@@ -11,17 +10,20 @@ import {
   isReactive,
 } from 'vue';
 import Dialog from '../core/dialog';
-import { useFrame, createDialog } from './control';
+import VueDialog from './dialog-class';
+import Frame from './frame-class';
+import { useFrame, createDialog, setDefaultDialog } from './utils';
 import css from '/@/style';
-import Frame from './Frame';
-import { DialogType } from '/#/dialog';
+import FrameComponent from './Frame';
+import { AnyComponentPublicInstance } from './types';
+import { DialogOptions } from '../core/types';
 
 export default defineComponent({
-  name: 'bam-dialog',
+  name: 'BamDialog',
 
   props: {
     dialog: {
-      type: Object as PropType<Dialog | DialogType.DialogOptions>,
+      type: Object as PropType<VueDialog | DialogOptions>,
       default: () => ({}),
     },
   },
@@ -33,7 +35,7 @@ export default defineComponent({
      * @Data
      */
     const _dialog = props.dialog instanceof Dialog ? props.dialog : createDialog(props.dialog);
-    const dialog = isReactive(_dialog) ? _dialog : reactive(_dialog);
+    const dialog = isReactive(_dialog) ? _dialog : setDefaultDialog(_dialog);
 
     expose({
       dialog,
@@ -48,7 +50,7 @@ export default defineComponent({
      * @Event
      * 使用 Proxy 綁定事件
      */
-    const onClick = (e: PointerEvent) => dialog.onBgclick(e);
+    const onClick = (e: MouseEvent) => dialog.onBgclick(e);
     const onDragover = (e: DragEvent) => dialog.onDragover(e);
     const onDragend = (e: DragEvent) => dialog.onDragend(e);
     const onTouchmove = (e: TouchEvent) => dialog.onTouchmove(e);
@@ -67,7 +69,9 @@ export default defineComponent({
       document.body.addEventListener('touchend', onTouchend);
       window.addEventListener('resize', onResize);
     });
-    onUpdated(() => dialog.onUpdate(instance));
+    onUpdated(() => {
+      dialog.onUpdate(instance);
+    });
     onUnmounted(() => {
       dialog.onUnmount(instance);
       document.body.removeEventListener('click', onClick);
@@ -83,7 +87,7 @@ export default defineComponent({
      */
     return () => (
       <div
-        ref={(e: Element) => dialog.setRootElement(e)}
+        ref={(e: AnyComponentPublicInstance | Element) => dialog.setRootElement<AnyComponentPublicInstance>(e)}
         class={css.dialog}
         style={{
           pointerEvents: isBackgroundMask.value ? 'auto' : 'none',
@@ -92,12 +96,21 @@ export default defineComponent({
       >
         <div class={css.dialog_container} style={{ background: dialog.backgroundMask }}></div>
         {dialog.frames.map((frame, index: number) => {
-          const target = useFrame(frame.id, false);
-          if (!target) {
+          const target = useFrame(frame.id);
+          if (target) {
+            const View = markRaw(target.createVNode());
+            return (
+              <FrameComponent
+                key={frame.id}
+                z-index={index}
+                frame={frame as Frame}
+                dialog={dialog as VueDialog}
+                view={View}
+              />
+            );
+          } else {
             return null;
           }
-          const View = markRaw(defineComponent(target.view as any));
-          return <Frame key={frame.id} z-index={index} frame={frame} dialog={dialog as Dialog} view={View} />;
         })}
       </div>
     );

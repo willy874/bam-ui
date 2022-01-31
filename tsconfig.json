@@ -24,7 +24,8 @@
     "skipLibCheck": true,
     "paths": {
       "/@/*": ["src/*"],
-      "/#/*": ["types/*"]
+      "/#/*": ["types/*"],
+      "/%/*": ["dist/*"]
     }
   },
   "plugins": [{ "name": "typescript-plugin-css-modules" }],

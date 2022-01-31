@@ -21,14 +21,14 @@ export default defineComponent({
     const onDragstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onDragstart(e, FrameComponent.frame, DragEventType.DRAG_MOVE);
+          FrameComponent.dialog.onDragstart(e, FrameComponent.frame.id, DragEventType.DRAG_MOVE);
         }
       };
     };
     const onTouchstart = (FrameComponent?: FrameComponentInstance) => {
       return (e) => {
         if (FrameComponent) {
-          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame, DragEventType.DRAG_MOVE);
+          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame.id, DragEventType.DRAG_MOVE);
         }
       };
     };
