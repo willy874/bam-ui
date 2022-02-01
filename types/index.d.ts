@@ -14,10 +14,6 @@ declare interface Env {
 
 declare interface ImportMetaEnv extends Env {}
 
-declare interface CssModuleBase {
-  [key: string]: string;
-}
-
 declare module '*.module.scss' {
   const classes: {
     readonly css: {

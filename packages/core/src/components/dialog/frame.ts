@@ -1,7 +1,7 @@
 import type { FrameConstructor, FramePosition, PagePosition, FrameHookProperty } from './types';
 import { getViewportOffset } from 'bam-utility-plugins';
+import { DragEventType } from '../../enum';
 import { useDialog } from './utils';
-import { DragEventType } from '/@/enum';
 import Dialog from './dialog';
 
 const hook: FrameHookProperty = {

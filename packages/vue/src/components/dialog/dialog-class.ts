@@ -1,4 +1,4 @@
-import Dialog from '../core/dialog';
+import Dialog from '/@/';
 import { OpenFrameOptions } from '../core/types';
 import { createFrame, isFrame } from './utils';
 import VueFrame from './frame-class';

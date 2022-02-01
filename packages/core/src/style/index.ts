@@ -1,6 +1,6 @@
 import cssModule from './module';
 import tailwind from './tailwind';
-import type DialogCssModule from './types';
+import type { DialogCssModule } from './types';
 
 function appendStyle(css: { [key: string]: string }) {
   const style = document.createElement('style');

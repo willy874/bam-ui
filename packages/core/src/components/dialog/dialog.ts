@@ -1,9 +1,9 @@
 import type { DialogConstructor, OpenFrameOptions, DialogHookProperty } from './types';
-import Frame from './frame';
 import { getViewportOffset, clearDragImage } from 'bam-utility-plugins';
+import { isSymbol } from '../../utils';
+import { DragEventType } from '../../enum';
+import Frame from './frame';
 import { createFrame, isFrame } from './utils';
-import { isSymbol } from '/@/utils';
-import { DragEventType } from '/@/enum';
 
 type GetFrameParam = Frame | number | symbol;
 

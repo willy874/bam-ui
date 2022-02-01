@@ -1,4 +1,7 @@
-export default interface DialogCssModule extends CssModuleBase {
+declare interface CssModuleBase {
+  readonly [key: string]: string;
+}
+export interface DialogCssModule extends CssModuleBase {
   dialog: string;
   dialog_container: string;
   dialog_frame: string;

@@ -5,8 +5,8 @@ import {
   useDialog as _useDialog,
   useFrame as _useFrame,
 } from '../../core/src/components/dialog/core/utils';
-import VueDialog from './dialog-class';
-import VueFrame from './frame-class';
+import VueDialog from '../../components/dialog/dialog-class';
+import VueFrame from '../../components/dialog/frame-class';
 
 const DialogCollection: { [key: symbol]: () => UnwrapNestedRefs<VueDialog> } = {};
 const FrameCollection: { [key: symbol]: () => VueFrame } = {};

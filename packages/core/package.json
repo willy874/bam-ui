@@ -1,0 +1,30 @@
+{
+  "name": "@bam-ui/core",
+  "version": "0.0.1",
+  "description": "core data.",
+  "main": "dist/index.cjs",
+  "typings": "dist/index.d.ts",
+  "module": "dist/bam-ui.esm.js",
+  "license": "MIT",
+  "files": [
+    "README.md",
+    "dist"
+  ],
+  "exports": {
+    "import": "./dist/bam-ui.esm.js",
+    "require": "./dist/bam-ui.cjs",
+    "types": "./dist/index.d.ts"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/willy874/bam-ui.git",
+    "directory": "packages/core"
+  },
+  "scripts": {},
+  "devDependencies": {}
+}
