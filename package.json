@@ -1,29 +1,33 @@
 {
   "name": "bam-ui",
-  "version": "0.0.7",
-  "license": "",
+  "version": "0.0.12",
+  "license": "MIT",
+  "repository": "https://github.com/willy874/bam-ui",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "start": "docker-compose up",
     "preview": "vite preview"
   },
-  "typings": "dist/src/vue/export.d.ts",
+  "bin": {
+    "bam-ui": "script/bundle.js"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
   "files": [
-    "src",
+    "packages",
     "dist",
     "types"
   ],
   "main": "./dist/bam.es.js",
   "module": "./dist/bam.es.js",
   "exports": {
-    ".": {
-      "import": "./dist/bam.es.js",
-      "require": "./dist/bam.umd.js"
-    }
+    "import": "./dist/bam.es.js",
+    "require": "./dist/bam.umd.js",
+    "type": "./dist/src/vue/export.d.ts"
   },
   "dependencies": {
-    "bam-ui": "0.0.7",
     "bam-utility-plugins": "^0.2.0"
   },
   "peerDependencies": {

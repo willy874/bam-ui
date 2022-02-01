@@ -23,7 +23,7 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "paths": {
-      "/@/*": ["src/*"],
+      "/@/*": ["packages/core/src/*"],
       "/#/*": ["types/*"],
       "/%/*": ["dist/*"]
     }

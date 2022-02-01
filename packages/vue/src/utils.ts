@@ -1,6 +1,10 @@
-import type { DialogOptions, FrameOptions } from '../core/types';
+import type { DialogOptions, FrameOptions } from '../../core/src/components/dialog/core/types';
 import { reactive, UnwrapNestedRefs } from 'vue';
-import { createDialog as _createDialog, useDialog as _useDialog, useFrame as _useFrame } from '../core/utils';
+import {
+  createDialog as _createDialog,
+  useDialog as _useDialog,
+  useFrame as _useFrame,
+} from '../../core/src/components/dialog/core/utils';
 import VueDialog from './dialog-class';
 import VueFrame from './frame-class';
 
