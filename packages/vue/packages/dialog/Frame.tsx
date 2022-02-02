@@ -10,11 +10,11 @@ import {
   DefineComponent,
   PropType,
 } from 'vue';
-import { getFrameData, getFrameMethods } from 'bam-ui/packages/core/src/index';
+import { getFrameData, getFrameMethods } from '@core/packages';
 import { getTransformStyleString } from 'bam-utility-plugins';
 import DialogClass from './dialog-class';
 import FrameClass from './frame-class';
-import css from '@bam-ui/core/dist/style.css';
+import css from '@style/dialog/style.module.scss';
 
 export default defineComponent({
   name: 'BamFrame',

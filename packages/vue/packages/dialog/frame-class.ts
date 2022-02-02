@@ -1,6 +1,6 @@
 import { isVNode, h, VNode } from 'vue';
-import { Dialog, Frame, FramePosition, getFrameData, getFrameMethods } from 'bam-ui/packages/core/src/index';
-import css from '@bam-ui/core/dist/style.css';
+import { Dialog, Frame, FramePosition, getFrameData, getFrameMethods } from '@core/packages';
+import css from '@style/dialog/dialog.module.scss';
 import { useDialog } from './utils';
 
 export default class VueFrame<View = any> extends Frame<VNode | View> {

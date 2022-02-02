@@ -1,14 +1,5 @@
-import type { DialogOptions, FrameOptions } from 'bam-ui/packages/core/src/index';
-import {
-  reactive,
-  getCurrentInstance,
-  UnwrapNestedRefs,
-  ComponentInternalInstance,
-  ComponentPublicInstance,
-  defineComponent,
-  isProxy,
-  markRaw,
-} from 'vue';
+import type { DialogOptions, FrameOptions } from '@core/packages';
+import { reactive, UnwrapNestedRefs } from 'vue';
 import VueDialog from './dialog-class';
 import VueFrame from './frame-class';
 
@@ -67,48 +58,4 @@ export function createFrame<V>(options: FrameOptions<V>): VueFrame<V> {
 
 export function isFrame<V>(f: unknown): f is VueFrame<V> {
   return typeof f === 'object' && f instanceof VueFrame;
-}
-
-function recursionParent(paths: ComponentInternalInstance[], vm: ComponentInternalInstance) {
-  paths.push(vm);
-  if (vm.parent) {
-    return recursionParent(paths, vm.parent);
-  } else {
-    return paths;
-  }
-}
-
-function getComponentPaths(vm?: ComponentInternalInstance): ComponentInternalInstance[] {
-  const paths = [];
-  if (vm) {
-    return recursionParent(paths, vm);
-  }
-  return [];
-}
-
-/**
- * 放入 vue 實體，可以用 getCurrentInstance() 取得，要在 setup 獲取。
- * @param {ComponentPublicInstance} component
- * @returns {ComponentPublicInstance}
- */
-export function findParentComponent<T = ComponentPublicInstance>(component: any) {
-  const instance = getCurrentInstance();
-  if (instance && component) {
-    const paths = getComponentPaths(instance);
-    for (const vm of paths) {
-      if (!vm.type.name && !component.name) {
-        return;
-      }
-      if (vm.type.name === component.name) {
-        return vm.proxy as unknown as T;
-      }
-    }
-  }
-}
-
-export function defineComponentProps(component: any) {
-  if (isProxy(component)) {
-    console.warn('請放入未被代理的組件');
-  }
-  return markRaw(defineComponent(component));
 }

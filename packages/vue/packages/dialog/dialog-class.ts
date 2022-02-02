@@ -1,4 +1,4 @@
-import { Dialog, OpenFrameOptions } from 'bam-ui/packages/core/src/index';
+import { Dialog, OpenFrameOptions } from '@core/packages';
 import { createFrame, isFrame } from './utils';
 import VueFrame from './frame-class';
 

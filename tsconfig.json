@@ -23,22 +23,28 @@
     "noImplicitAny": false,
     "skipLibCheck": true,
     "paths": {
-      "/@/*": ["packages/core/src/*"],
-      "/#/*": ["types/*"],
-      "/%/*": ["dist/*"]
+      "@src/*": ["src/*"],
+      "@core/*": ["packages/core/*"],
+      "@style/*": ["packages/core/style/module/*"]
     }
   },
   "plugins": [{ "name": "typescript-plugin-css-modules" }],
   "include": [
-    "tests/**/*.ts",
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
+    "packages/**/*.ts",
+    "packages/**/*.d.ts",
+    "packages/**/*.tsx",
+    "packages/**/*.vue",
     "types/**/*.d.ts",
     "types/**/*.ts",
-    "build/**/*.ts",
-    "build/**/*.d.ts",
+    "compile/**/*.ts",
+    "compile/**/*.d.ts",
+    "script/**/*.ts",
+    "script/**/*.d.ts",
+    "tests/**/*.ts",
     "mock/**/*.ts",
     "vite.config.ts"
   ],
