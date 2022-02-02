@@ -1,11 +1,12 @@
 {
   "name": "bam-ui",
-  "version": "0.0.13",
+  "version": "0.0.14",
   "license": "MIT",
   "repository": "https://github.com/willy874/bam-ui",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
+    "build:vue": "vite build -c compile/vue-config.ts",
     "start": "docker-compose up",
     "preview": "vite preview"
   },
@@ -15,17 +16,27 @@
   "files": [
     "packages",
     "dist",
+    "pkg-vue",
     "types"
   ],
   "main": "./dist/bam.es.js",
   "module": "./dist/bam.es.js",
   "exports": {
-    "import": "./dist/bam.es.js",
-    "require": "./dist/bam.umd.js",
-    "type": "./dist/src/vue/export.d.ts"
+    "./vue": {
+      "import": "./pkg-vue/bam-ui.es.js",
+      "require": "./pkg-vue/bam-ui.umd.js",
+      "type": "./pkg-vue/types/index.d.ts",
+      "style": "./pkg-vue/style.css"
+    },
+    ".": {
+      "import": "./dist/bam-ui.es.js",
+      "require": "./dist/bam-ui.umd.js",
+      "type": "./dist/types/index.d.ts",
+      "style": "./dist/style.css"
+    }
   },
   "dependencies": {
-    "bam-utility-plugins": "^0.2.0"
+    "bam-utility-plugins": "^0.2.2"
   },
   "peerDependencies": {
     "vue": "^3.2.16"

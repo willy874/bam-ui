@@ -30,7 +30,7 @@ export default function getCommonCompileConfig(env: Env): UserConfig {
       },
       preprocessorOptions: {
         scss: {
-          additionalData: `@import "./src/style/import.scss";`,
+          additionalData: `@import "./packages/core/style/import.scss";`,
         },
       },
     },

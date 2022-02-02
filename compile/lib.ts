@@ -5,7 +5,7 @@ import dts from 'vite-plugin-dts';
 
 export default function (env: Env): UserConfig {
   const common = getCommonCompileConfig(env);
-  const { VITE_FRAMEWORK_TYPE } = env;
+  const { VITE_FRAMEWORK_TYPE, OUT_DIR } = env;
   const frameworkType = VITE_FRAMEWORK_TYPE?.toLocaleLowerCase() || 'vanilla';
   const frameworkPlugins = getFrameworkDependPlugins(frameworkType);
   const plugins = [
@@ -16,12 +16,12 @@ export default function (env: Env): UserConfig {
 
   const alias: AliasOptions = [
     {
-      find: /\/@/,
-      replacement: pathResolve('src') + '/',
+      find: /@core/,
+      replacement: pathResolve('packages', 'core'),
     },
     {
-      find: /\/#/,
-      replacement: pathResolve('types') + '/',
+      find: /@style/,
+      replacement: pathResolve('packages', 'core', 'style', 'module'),
     },
   ];
   if (common.resolve) {
@@ -35,10 +35,11 @@ export default function (env: Env): UserConfig {
   }
 
   common.build = {
+    outDir: OUT_DIR || 'dist',
     lib: {
-      entry: pathResolve('src', 'vue', 'export.ts'),
+      entry: pathResolve('packages', frameworkType, 'index.ts'),
       name: 'bam-ui',
-      fileName: (format) => `bam.${format}.js`,
+      fileName: (format) => `bam-ui.${format}.js`,
     },
     rollupOptions: {
       external: ['bam-utility-plugins'],

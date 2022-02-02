@@ -54,5 +54,9 @@ export default function (env: Env): UserConfig {
     target: 'es2015',
   };
 
+  if (os.type() == 'Linux') {
+    console.log(`Docker Run http://localhost:3011/`);
+  }
+
   return common;
 }
