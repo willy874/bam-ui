@@ -1,6 +1,6 @@
 {
   "name": "bam-ui",
-  "version": "0.0.14",
+  "version": "0.0.16",
   "license": "MIT",
   "repository": "https://github.com/willy874/bam-ui",
   "scripts": {
@@ -19,20 +19,15 @@
     "pkg-vue",
     "types"
   ],
-  "main": "./dist/bam.es.js",
-  "module": "./dist/bam.es.js",
+  "main": "./dist/bam-ui.es.js",
+  "module": "./dist/bam-ui.es.js",
+  "types": "./dist/packages/vue/index.d.ts",
   "exports": {
     "./vue": {
       "import": "./pkg-vue/bam-ui.es.js",
       "require": "./pkg-vue/bam-ui.umd.js",
-      "type": "./pkg-vue/types/index.d.ts",
+      "type": "./pkg-vue/types/packages/vue/index.d.ts",
       "style": "./pkg-vue/style.css"
-    },
-    ".": {
-      "import": "./dist/bam-ui.es.js",
-      "require": "./dist/bam-ui.umd.js",
-      "type": "./dist/types/index.d.ts",
-      "style": "./dist/style.css"
     }
   },
   "dependencies": {
