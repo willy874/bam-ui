@@ -1,7 +1,7 @@
 import { defineComponent, PropType } from 'vue';
 import { FrameComponentInstance } from './types';
-import { findParentComponent } from '/@/vue/utils';
-import { DragEventType } from '/@/enum';
+import { findParentComponent } from './utils';
+import { DragEventType } from 'bam-ui/packages/core/src/index';
 import Frame from './Frame';
 
 export default defineComponent({

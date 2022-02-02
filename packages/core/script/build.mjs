@@ -17,7 +17,6 @@ import fs from 'fs';
 const root = process.cwd()
 const outputDir = path.join(root, 'dist')
 
-
 async function build(input, output, callback) {
   let bundle;
   let buildFailed = false;
@@ -43,7 +42,8 @@ async function generateOutputs(bundle, output, callback) {
       if (chunk.type === 'asset') {
         // 
       } else {
-        await callback(chunk)
+        await fs.promises.writeFile(path.join(outputDir, chunk.fileName), chunk.code)
+        console.log(`Bundle ${chunk.fileName} build.`.blue);
       }
     }
   }
@@ -100,8 +100,6 @@ const outputOptionsList = [{
   }
 ];
 
-
-
 const typeInputOptions = {
   input: path.join(root, 'src', 'packages', 'index.ts'),
   plugins: [dts()],
@@ -115,23 +113,9 @@ const typeOutputOption = {
 
 export default async function main() {
   try {
-    await build(indexInputOption, [outputOption], async (chunk) => {
-      if (!fs.existsSync(outputDir)) {
-        await fs.promises.mkdir(outputDir)
-      }
-      await fs.promises.writeFile(path.join(outputDir, chunk.fileName), chunk.code)
-      console.log(`Bundle ${chunk.fileName} build.`.blue);
-    });
-
-    await build(inputOptions, outputOptionsList, async (chunk) => {
-      await fs.promises.writeFile(path.join(outputDir, chunk.fileName), chunk.code)
-      console.log(`Bundle ${chunk.fileName} build.`.blue);
-    });
-
-    await build(typeInputOptions, [typeOutputOption], async (chunk) => {
-      await fs.promises.writeFile(path.join(outputDir, chunk.fileName), chunk.code)
-      console.log(`Bundle ${chunk.fileName} build.`.blue);
-    });
+    await build(indexInputOption, [outputOption]);
+    await build(inputOptions, outputOptionsList);
+    await build(typeInputOptions, [typeOutputOption]);
   } catch (error) {
     console.log(error);
   }

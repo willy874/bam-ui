@@ -9,14 +9,13 @@ import {
   PropType,
   isReactive,
 } from 'vue';
-import Dialog from '../core/dialog';
+import { Dialog, DialogOptions } from 'bam-ui/packages/core/src/index';
+import css from 'bam-ui/packages/core/dist/index.css';
 import VueDialog from './dialog-class';
 import Frame from './frame-class';
 import { useFrame, createDialog, setDefaultDialog } from './utils';
-import css from '/@/style';
 import FrameComponent from './Frame';
 import { AnyComponentPublicInstance } from './types';
-import { DialogOptions } from '../core/types';
 
 export default defineComponent({
   name: 'BamDialog',

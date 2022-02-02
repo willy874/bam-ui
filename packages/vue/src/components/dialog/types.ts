@@ -1,6 +1,6 @@
 import { ComponentOptionsBase, ComponentPublicInstance, DefineComponent, VNode } from 'vue';
-import type Dialog from '../core/dialog';
-import type Frame from '../core/frame';
+import type Dialog from './dialog-class';
+import type Frame from './frame-class';
 
 export type AnyDefineComponent = DefineComponent<
   unknown,

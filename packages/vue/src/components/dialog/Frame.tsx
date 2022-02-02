@@ -8,13 +8,13 @@ import {
   isVNode,
   VNode,
   DefineComponent,
+  PropType,
 } from 'vue';
-import type { PropType } from 'vue';
+import { getFrameData, getFrameMethods } from 'bam-ui/packages/core/src/index';
+import { getTransformStyleString } from 'bam-utility-plugins';
 import DialogClass from './dialog-class';
 import FrameClass from './frame-class';
-import { getFrameData, getFrameMethods } from '../core/interface';
-import { getTransformStyleString } from 'bam-utility-plugins';
-import css from '/@/style';
+import css from '@bam-ui/core/dist/style.css';
 
 export default defineComponent({
   name: 'BamFrame',

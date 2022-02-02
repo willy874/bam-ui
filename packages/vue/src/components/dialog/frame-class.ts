@@ -1,10 +1,7 @@
-import type { FramePosition } from '../core/types';
 import { isVNode, h, VNode } from 'vue';
-import Dialog from '../core/dialog';
-import Frame from '../core/frame';
+import { Dialog, Frame, FramePosition, getFrameData, getFrameMethods } from 'bam-ui/packages/core/src/index';
+import css from '@bam-ui/core/dist/style.css';
 import { useDialog } from './utils';
-import css from '/@/style';
-import { getFrameData, getFrameMethods } from '../core/interface';
 
 export default class VueFrame<View = any> extends Frame<VNode | View> {
   tag = 'vue';

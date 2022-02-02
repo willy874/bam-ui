@@ -38,7 +38,7 @@ App.vue
 ```vue
 <script setup lang="ts">
   import { PropType } from 'vue';
-  import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from './dialog';
+  import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from 'bam-ui';
   const props = defineProps({
     data: Object as PropType<FrameData>,
     methods: Object as PropType<FrameMethods>,

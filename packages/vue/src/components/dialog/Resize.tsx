@@ -1,9 +1,9 @@
 import { defineComponent, PropType } from 'vue';
-import { FrameComponentInstance } from './types';
-import { findParentComponent } from '/@/vue/utils';
-import { DragEventType } from '/@/enum';
+import { DragEventType } from 'bam-ui/packages/core/src/index';
+import css from '@bam-ui/core/dist/style.css';
 import Frame from './Frame';
-import css from '/@/style';
+import { FrameComponentInstance } from './types';
+import { findParentComponent } from './utils';
 
 export default defineComponent({
   name: 'bam-frame-resize',
