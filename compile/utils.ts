@@ -1,7 +1,6 @@
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
 import vueJsx from '@vitejs/plugin-vue-jsx';
-import vueSetupExtend from 'vite-plugin-vue-setup-extend';
 
 export function pathResolve(dir: string | string[], ...dirs: string[]) {
   if (typeof dir === 'string') {
@@ -21,7 +20,7 @@ export function getFrameworkDependPlugins(type) {
       //
       vueJsx(),
       //
-      vueSetupExtend(),
+      // vueSetupExtend(),
     ];
   }
 

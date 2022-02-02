@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { PropType } from 'vue';
-import { useDialog, BamFrameResize, BamFrameDraggable, FrameData } from 'bam-ui'
+// import { useDialog, BamFrameResize, BamFrameDraggable, FrameData } from 'bam-ui'
+import { FrameData } from '../../../packages/core'
+import { useDialog, BamFrameResize, BamFrameDraggable } from '../../../packages/vue'
+
 const props = defineProps({
   frameData: Object as PropType<FrameData>
 })
