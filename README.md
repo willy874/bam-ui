@@ -17,7 +17,7 @@ App.vue
 
   const onOpenDialog = async () => {
     const dialog = useDialog();
-    const frame = await dialog.openFrame({ view: DialogView });
+    const frame = await dialog.openFrame(() => DialogView);
   };
 
   const dialogNative = createDialog();

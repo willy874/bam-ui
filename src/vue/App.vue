@@ -26,7 +26,7 @@ console.log(dialog);
       <button type="button" @click="onOpenDialog">打開</button>
       <div>123</div>
     </div>
-    <BamDialog :dialog="{ backgroundMask: '#00000044' }" />
+    <BamDialog :dialog="dialog" />
     <!-- <BamDialog :is-background-mask="false" /> -->
   </div>
 </template>
