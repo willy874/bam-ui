@@ -1,6 +1,6 @@
 import { defineComponent, PropType } from 'vue';
 import { DragEventType } from '@core/enum';
-import css from '@style/dialog/style.module.scss';
+import css from '@style/style.module.scss';
 import Frame from './Frame';
 import { FrameComponentInstance } from './types';
 import { findParentComponent } from '../other/utils';

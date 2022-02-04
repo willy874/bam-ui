@@ -1,6 +1,6 @@
 import { isVNode, h, VNode } from 'vue';
 import { Dialog, Frame, FramePosition, getFrameData, getFrameMethods } from '@core/packages';
-import css from '@style/dialog/style.module.scss';
+import css from '@style/style.module.scss';
 import { useDialog } from './utils';
 
 export default class VueFrame<View = any> extends Frame<VNode | View> {

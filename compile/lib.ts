@@ -1,4 +1,4 @@
-import { UserConfig, AliasOptions } from 'vite';
+import { UserConfig } from 'vite';
 import { pathResolve, getFrameworkDependPlugins } from './utils';
 import getCommonCompileConfig from './common';
 import dts from 'vite-plugin-dts';
@@ -10,23 +10,8 @@ export default function (env: Env): UserConfig {
   const frameworkPlugins = getFrameworkDependPlugins(frameworkType);
   const plugins = [
     ...frameworkPlugins,
-    //
     dts(),
   ];
-
-  const alias: AliasOptions = [
-    {
-      find: /@core/,
-      replacement: pathResolve('packages', 'core'),
-    },
-    {
-      find: /@style/,
-      replacement: pathResolve('packages', 'core', 'style', 'module'),
-    },
-  ];
-  if (common.resolve) {
-    common.resolve.alias = alias;
-  }
 
   if (common.plugins) {
     common.plugins.push(...plugins);

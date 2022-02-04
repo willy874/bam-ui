@@ -17,10 +17,11 @@ declare interface ImportMetaEnv extends Env {}
 
 declare module '*.module.scss' {
   const classes: {
-    readonly css: {
+    readonly classNames: {
       [key: string]: string;
     };
     readonly [key: string]: string;
+    cssString: string
   };
   export default classes;
 }

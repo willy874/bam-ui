@@ -25,7 +25,7 @@
     "paths": {
       "@src/*": ["src/*"],
       "@core/*": ["packages/core/*"],
-      "@style/*": ["packages/core/style/module/*"]
+      "@style/*": ["packages/core/style/*"]
     }
   },
   "plugins": [{ "name": "typescript-plugin-css-modules" }],

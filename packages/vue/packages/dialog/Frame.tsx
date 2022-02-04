@@ -14,7 +14,7 @@ import { getFrameData, getFrameMethods } from '@core/packages';
 import { getTransformStyleString } from 'bam-utility-plugins';
 import DialogClass from './dialog-class';
 import FrameClass from './frame-class';
-import css from '@style/dialog/style.module.scss';
+import css from '@style/style.module.scss';
 
 export default defineComponent({
   name: 'BamFrame',

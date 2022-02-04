@@ -4,7 +4,6 @@ import build from './compile/lib';
 
 export default async ({ command, mode }: ConfigEnv): Promise<UserConfig> => {
   const env: Env = loadEnv(mode, process.cwd());
-  let config = command === 'serve' ? development(env) : build(env);
-  // console.log(config);
+  const config = command === 'serve' ? development(env) : build(env);
   return config;
 };
