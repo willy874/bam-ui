@@ -40,9 +40,9 @@ App.vue
   import { PropType } from 'vue';
   import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from 'bam-ui/cue';
   const props = defineProps({
-    data: Object as PropType<FrameData>,
-    methods: Object as PropType<FrameMethods>,
-    props: Object as PropType<unknown>,
+    frameData: Object as PropType<FrameData>,
+    frameMethods: Object as PropType<FrameMethods>,
+    frameProps: Object as PropType<unknown>,
   });
 
   const dialog = useDialog();
