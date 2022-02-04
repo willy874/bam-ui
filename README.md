@@ -13,7 +13,7 @@ App.vue
 ```vue
 <script setup lang="ts">
   import DialogView from '@/components/DialogView.vue';
-  import { BamDialog, createDialog, useDialog } from 'bam-ui';
+  import { BamDialog, createDialog, useDialog } from 'bam-ui/vue';
 
   const onOpenDialog = async () => {
     const dialog = useDialog();
@@ -38,7 +38,7 @@ App.vue
 ```vue
 <script setup lang="ts">
   import { PropType } from 'vue';
-  import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from 'bam-ui';
+  import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from 'bam-ui/cue';
   const props = defineProps({
     data: Object as PropType<FrameData>,
     methods: Object as PropType<FrameMethods>,
@@ -46,7 +46,7 @@ App.vue
   });
 
   const dialog = useDialog();
-  const onClose = () => dialog.closeFrame(props.data?.id);
+  const onClose = () => dialog.closeFrame(props.data.id);
 </script>
 
 <template>

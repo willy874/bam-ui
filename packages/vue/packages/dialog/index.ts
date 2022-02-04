@@ -6,5 +6,6 @@ import Dialog from './dialog-class';
 import Frame from './frame-class';
 
 export { BamDialog, BamFrame, BamFrameDraggable, BamFrameResize, Dialog, Frame };
+export * from '@core/packages/dialog/types';
 export * from './types';
 export * from './utils';
