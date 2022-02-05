@@ -29,8 +29,6 @@ App.vue
     const dialog = useDialog();
     const frame = await dialog.openFrame(() => DialogView);
   };
-
-  const dialogNative = createDialog();
 </script>
 
 <template>
@@ -38,7 +36,7 @@ App.vue
     <div class="main">
       <button type="button" @click="onOpenDialog">打開</button>
     </div>
-    <bam-dialog :dialog="dialogNative" />
+    <bam-dialog />
   </div>
 </template>
 ```
@@ -48,7 +46,7 @@ App.vue
 ```vue
 <script setup lang="ts">
   import { PropType } from 'vue';
-  import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from 'bam-ui/cue';
+  import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from 'bam-ui/vue';
   const props = defineProps({
     frameData: {
       required: true,

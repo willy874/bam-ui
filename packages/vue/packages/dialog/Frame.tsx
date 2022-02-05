@@ -1,74 +1,101 @@
-import { onMounted, onUpdated, onUnmounted, defineComponent, getCurrentInstance, PropType } from 'vue';
+import {
+  onMounted,
+  onUpdated,
+  onUnmounted,
+  defineComponent,
+  getCurrentInstance,
+  PropType,
+  Teleport,
+  reactive,
+} from 'vue';
 import { getTransformStyleString } from 'bam-utility-plugins';
-import { Dialog, Frame } from '@core/packages';
+import { Dialog, Frame, OpenFrameOptions } from '@core/packages';
 import { getClassNames as css } from '@core/style';
-import { createVNode } from './utils';
+import { createVNode, useDialog, isDialog, isFrame, useFrame } from './utils';
 
 export default defineComponent({
   name: 'bam-frame',
   props: {
     dialog: {
       type: Object as PropType<Dialog>,
-      required: true,
+      default: null,
     },
     frame: {
-      type: Object as PropType<Frame>,
-      required: true,
+      type: Object as PropType<Frame | OpenFrameOptions>,
+      default: () => ({}),
     },
     zIndex: {
       type: Number,
-      default: 0,
+      default: 1,
     },
   },
 
-  setup(props, { expose }) {
+  setup(props, { expose, slots }) {
     const instance = getCurrentInstance();
-    const View = createVNode(props.frame);
+    const dialog = isDialog(props.dialog) ? props.dialog : useDialog();
+    const frame = (() => {
+      if (isFrame(props.frame)) {
+        return props.frame;
+      } else {
+        const id = Symbol(props.frame?.name || 'Frame');
+        dialog.openFrame(() => slots.default, {
+          ...props.frame,
+          id,
+        });
+        return reactive(useFrame(id));
+      }
+    })();
+    const View = createVNode(frame);
+    const rootId = instance?.appContext.app._container.id;
 
     /**
      * @Data
      */
-    expose({});
+    expose({
+      frame,
+    });
 
     /**
      * @Created
      */
-    if (props.dialog.isBackgroundMask && props.frame.hook.bgclick.length === 0) {
-      props.frame.on('bgclick', () => props.frame.onClose());
+    // 必須是 isBackgroundMask 的模式下並且未綁定任何事件。
+    if (dialog.isBackgroundMask && frame.hook.bgclick.length === 0) {
+      frame.on('bgclick', () => frame.onClose());
     }
-
-    /**
-     * @Event
-     */
 
     /**
      * @Lifecycle
      */
-    onMounted(() => props.frame.onMount(instance));
-    onUpdated(() => props.frame.onUpdate(instance));
-    onUnmounted(() => props.frame.onUnmount(instance));
+    onMounted(() => frame.onMount(instance));
+    onUpdated(() => frame.onUpdate(instance));
+    onUnmounted(() => frame.onUnmount(instance));
 
-    /**
-     * @Render
-     */
-    return () => (
+    const renderFrame = () => (
       <div
-        ref={(e: Element) => props.frame.setFrameElement(e)}
+        ref={(e: Element) => frame.setFrameElement(e)}
         class={css().dialog_frame}
         style={{
-          zIndex: props.zIndex,
+          zIndex: props.zIndex + 1,
           transform: getTransformStyleString({
-            translateX: props.frame.isFull ? '0' : props.frame.left,
-            translateY: props.frame.isFull ? '0' : props.frame.top,
+            translateX: frame.isFull ? '0' : frame.left,
+            translateY: frame.isFull ? '0' : frame.top,
           }),
-          width: props.frame.isFull ? '100vw' : props.frame.width,
-          height: props.frame.isFull ? '100vh' : props.frame.height,
+          width: frame.isFull ? '100vw' : frame.width,
+          height: frame.isFull ? '100vh' : frame.height,
         }}
         onClick={(e) => e.stopPropagation()}
-        onMousedown={() => props.dialog.sortToRight(props.frame.id)}
+        onMousedown={() => dialog.sortToRight(frame.id)}
       >
         {View}
       </div>
     );
+    /**
+     * @Render
+     */
+    if (slots.default) {
+      return () => <Teleport to={'#' + rootId}>{renderFrame()}</Teleport>;
+    } else {
+      return () => renderFrame();
+    }
   },
 });

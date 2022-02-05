@@ -3,8 +3,6 @@ import { utils, Dialog, Frame, getFrameData, getFrameMethods } from '@core/packa
 import { getClassNames as css } from '@core/style';
 
 utils.createDialog = function (options = {}) {
-  console.log(this);
-
   const dialog = new Dialog({
     id: typeof options.name === 'symbol' ? options.name : Symbol(options.name),
     hook: options.hook || {},

@@ -23,7 +23,7 @@ export type DialogHooks = keyof DialogHookParam & string;
 
 export type DialogHookProperty = { [K in DialogHooks]: Function[] };
 
-export interface OpenFrameOptions {
+export interface OpenFrameOptions<V = any> {
   name?: string;
   props?: object;
   hook?: FrameHookParam;
@@ -34,6 +34,9 @@ export interface OpenFrameOptions {
   width?: string;
   height?: string;
   position?: FramePosition;
+  view?: V;
+  id?: symbol;
+  dialogId?: symbol;
 }
 
 export interface FrameOptions<V = any> extends OpenFrameOptions {

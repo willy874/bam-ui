@@ -76,9 +76,11 @@ export const utils: UtilsInterface = {
     return getDialog();
   },
   createFrame(options, pluginHandler) {
+    const id = options.name ? Symbol(options.name) : Symbol('Frame');
     const frame = new Frame({
       ...options,
-      dialogId: options.name ? Symbol(options.name) : Symbol('Frame'),
+      id: typeof options.id === 'symbol' ? options.dialogId : id,
+      dialogId: useDialog(options.dialogId).id,
     });
     this.frameCollection[frame.id] = () => useFrameHandler(frame, pluginHandler);
     return frame;

@@ -42,7 +42,7 @@ export default class Frame<View = any> {
   dialogPadding: number = 60;
 
   constructor(args: FrameConstructor<View>) {
-    this.id = Symbol('Frame');
+    this.id = args.id || Symbol('Frame');
     this.dialogId = args.dialogId;
     this.view = args.view;
     this.props = args.props || {};
@@ -169,7 +169,7 @@ export default class Frame<View = any> {
     const indexOf = dialog.frames.map((f) => f.id).indexOf(this.id);
     const frames = dialog.frames.splice(indexOf, 1);
     const target = frames[0];
-    if (target?.close) await target.close(dialog);
+    if (target?.close) await target.close(target);
     this.close = null;
     return target;
   }
