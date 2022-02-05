@@ -10,7 +10,7 @@ import {
   isReactive,
 } from 'vue';
 import { Dialog, DialogOptions } from '@core/packages';
-import css from '@style/style.module.scss';
+import { getClassNames as css } from '@core/style';
 import VueDialog from './dialog-class';
 import Frame from './frame-class';
 import { useFrame, createDialog, setDefaultDialog } from './utils';
@@ -87,13 +87,13 @@ export default defineComponent({
     return () => (
       <div
         ref={(e: AnyComponentPublicInstance | Element) => dialog.setRootElement<AnyComponentPublicInstance>(e)}
-        class={css.dialog}
+        class={css().dialog}
         style={{
           pointerEvents: isBackgroundMask.value ? 'auto' : 'none',
           opacity: dialog.frames.length ? 1 : 0,
         }}
       >
-        <div class={css.dialog_container} style={{ background: dialog.backgroundMask }}></div>
+        <div class={css().dialog_container} style={{ background: dialog.backgroundMask }}></div>
         {dialog.frames.map((frame, index: number) => {
           const target = useFrame(frame.id);
           if (target) {

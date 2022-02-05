@@ -14,7 +14,7 @@ import { getFrameData, getFrameMethods } from '@core/packages';
 import { getTransformStyleString } from 'bam-utility-plugins';
 import DialogClass from './dialog-class';
 import FrameClass from './frame-class';
-import css from '@style/style.module.scss';
+import { getClassNames as css } from '@core/style';
 
 export default defineComponent({
   name: 'BamFrame',
@@ -69,13 +69,15 @@ export default defineComponent({
     onUpdated(() => props.frame.onUpdate(instance));
     onUnmounted(() => props.frame.onUnmount(instance));
 
+    console.log(props.view);
+
     /**
      * @Render
      */
     return () => (
       <div
         ref={(e: Element) => props.frame.setFrameElement(e)}
-        class={css.dialog_frame}
+        class={css().dialog_frame}
         style={{
           zIndex: props.zIndex,
           transform: getTransformStyleString({
@@ -92,7 +94,7 @@ export default defineComponent({
           props.view
         ) : (
           <props.view
-            class={css.dialog_view}
+            class={css().dialog_view}
             frame-data={frameData.value}
             frame-methods={frameMethods.value}
             frame-props={props.frame.props}

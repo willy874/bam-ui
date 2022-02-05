@@ -1,6 +1,6 @@
 import { isVNode, h, VNode } from 'vue';
 import { Dialog, Frame, FramePosition, getFrameData, getFrameMethods } from '@core/packages';
-import css from '@style/style.module.scss';
+import { getClassNames as css } from '@core/style';
 import { useDialog } from './utils';
 
 export default class VueFrame<View = any> extends Frame<VNode | View> {
@@ -25,7 +25,7 @@ export default class VueFrame<View = any> extends Frame<VNode | View> {
       return this.view;
     } else {
       return h(this.view, {
-        class: css.dialog_view,
+        class: css().dialog_view,
         frameData: getFrameData(this),
         frameMethods: getFrameMethods(this),
         frameProps: this.props,

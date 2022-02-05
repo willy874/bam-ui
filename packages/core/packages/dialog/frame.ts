@@ -156,19 +156,17 @@ export default class Frame<View = any> {
 
   off(type: string, callback?: Function) {
     const events = this.hook[type];
-    if (callback) {
-      if (events.includes(callback)) {
-        const indexOf = events.indexOf(callback);
-        if (indexOf >= 0) {
-          events.splice(indexOf, 1);
-          return true;
-        }
+    if (callback && events.includes(callback)) {
+      const indexOf = events.indexOf(callback);
+      if (indexOf >= 0) {
+        events.splice(indexOf, 1);
+        return true;
       }
+      return false;
     } else {
       events.splice(0);
       return true;
     }
-    return false;
   }
 
   async _onClose(dialog: Dialog) {
@@ -229,7 +227,7 @@ export default class Frame<View = any> {
   }
 
   onDragstart(...args: any[]) {
-    this.hook.update.forEach((event) => {
+    this.hook.dragstart.forEach((event) => {
       event.apply(this, args);
     });
   }

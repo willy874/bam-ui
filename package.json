@@ -1,6 +1,6 @@
 {
   "name": "bam-ui",
-  "version": "0.0.24",
+  "version": "0.0.26",
   "license": "MIT",
   "repository": "https://github.com/willy874/bam-ui",
   "scripts": {
@@ -19,11 +19,16 @@
     "pkg-vue",
     "types"
   ],
-  "type": "module",
   "main": "./dist/bam-ui.es.js",
   "module": "./dist/bam-ui.es.js",
   "types": "./dist/packages/vue/index.d.ts",
   "exports": {
+    "./style": {
+      "module": "./dist/style.css",
+      "import": "./dist/style.css",
+      "style": "./dist/style.css",
+      "scss": "./packages/core/style/style.scss"
+    },
     "./vue": {
       "module": "./pkg-vue/bam-ui.es.js",
       "import": "./pkg-vue/bam-ui.es.js",

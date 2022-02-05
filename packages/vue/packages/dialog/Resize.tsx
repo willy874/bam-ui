@@ -1,6 +1,6 @@
 import { defineComponent, PropType } from 'vue';
 import { DragEventType } from '@core/enum';
-import css from '@style/style.module.scss';
+import { getClassNames as css } from '@core/style';
 import Frame from './Frame';
 import { FrameComponentInstance } from './types';
 import { findParentComponent } from '../other/utils';
@@ -44,7 +44,7 @@ export default defineComponent({
           <>
             <props.tag
               class={{
-                [css.dialog_resize_mode]:
+                [css().dialog_resize_mode]:
                   FrameComponent.frame.width !== 'auto' && FrameComponent.frame.height !== 'auto',
               }}
             >
@@ -53,25 +53,25 @@ export default defineComponent({
             {FrameComponent.frame.isResizable ? (
               <>
                 <div
-                  class={css.dialog_resize_top}
+                  class={css().dialog_resize_top}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
                   onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_TOP)}
                 ></div>
                 <div
-                  class={css.dialog_resize_bottom}
+                  class={css().dialog_resize_bottom}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
                   onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_BOTTOM)}
                 ></div>
                 <div
-                  class={css.dialog_resize_right}
+                  class={css().dialog_resize_right}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
                   onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_RIGHT)}
                 ></div>
                 <div
-                  class={css.dialog_resize_left}
+                  class={css().dialog_resize_left}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
                   onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_LEFT)}

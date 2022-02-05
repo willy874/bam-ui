@@ -32,7 +32,7 @@ export default class Dialog {
     this.backgroundMask = args.backgroundMask;
     this.hook = { ...hook };
     Object.keys(hook).forEach((hook) => {
-      if (args.hook) {
+      if (args.hook && typeof args.hook[hook] === 'function') {
         this.on(hook, args.hook[hook]);
       }
     });

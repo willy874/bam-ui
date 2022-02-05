@@ -1,3 +1,5 @@
 import dialog from './module/dialog/tailwind';
 
-export { dialog };
+export default {
+  ...dialog
+};
