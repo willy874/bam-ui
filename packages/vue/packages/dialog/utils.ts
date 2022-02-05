@@ -1,61 +1,57 @@
-import type { DialogOptions, FrameOptions } from '@core/packages';
-import { reactive, UnwrapNestedRefs } from 'vue';
-import VueDialog from './dialog-class';
-import VueFrame from './frame-class';
+import { isVNode, reactive, toRaw, VNode, h } from 'vue';
+import { utils, Dialog, Frame, getFrameData, getFrameMethods } from '@core/packages';
+import { getClassNames as css } from '@core/style';
 
-const DialogCollection: { [key: symbol]: () => UnwrapNestedRefs<VueDialog> } = {};
-const FrameCollection: { [key: symbol]: () => VueFrame } = {};
+utils.createDialog = function (options = {}) {
+  console.log(this);
 
-const defaultDialogRef: {
-  get: (() => UnwrapNestedRefs<VueDialog>) | null;
-} = {
-  get: null,
-};
-
-export function createDialog(options: DialogOptions = {}) {
-  const dialog = new VueDialog({
+  const dialog = new Dialog({
     id: typeof options.name === 'symbol' ? options.name : Symbol(options.name),
     hook: options.hook || {},
     isBackgroundMask: options.isBackgroundMask === false ? false : true,
     backgroundMask: options.backgroundMask || 'transparent',
   });
   const getDialog = () => reactive(dialog);
-  DialogCollection[dialog.id] = getDialog;
-  if (!defaultDialogRef.get) {
-    defaultDialogRef.get = getDialog;
+  this.dialogCollection[dialog.id] = getDialog;
+  if (!this.defaultDialogRef.get) {
+    this.defaultDialogRef.get = getDialog;
   }
   return dialog;
-}
+};
 
-export function setDefaultDialog(dialog: VueDialog) {
+export const createDialog = utils.createDialog.bind(utils);
+
+utils.setDefaultDialog = function (dialog) {
   const getDialog = () => reactive(dialog);
-  DialogCollection[dialog.id] = getDialog;
-  defaultDialogRef.get = getDialog;
-  return getDialog();
-}
+  this.dialogCollection[dialog.id] = getDialog;
+  this.defaultDialogRef.get = getDialog;
+  return getDialog() as Dialog;
+};
 
-export function useDialog(id?: symbol): UnwrapNestedRefs<VueDialog> {
-  if (!defaultDialogRef.get) {
-    throw new Error('not created dialog');
+export const setDefaultDialog = utils.setDefaultDialog.bind(utils);
+
+export const useDialog = utils.useDialog.bind(utils);
+
+export const useFrame = utils.useFrame.bind(utils);
+
+export const createFrame = utils.createFrame.bind(utils);
+
+export const openFrame = utils.openFrame.bind(utils);
+
+export const isDialog = utils.isDialog.bind(utils);
+
+export const isFrame = utils.isFrame.bind(utils);
+
+export function createVNode(frame: Frame): VNode {
+  const f = toRaw(frame);
+  if (isVNode(f.view)) {
+    return f.view;
+  } else {
+    return h(f.view, {
+      class: css().dialog_view,
+      frameData: getFrameData(f),
+      frameMethods: getFrameMethods(f),
+      frameProps: f.props,
+    });
   }
-  const getDialog = (id && DialogCollection[id]) || defaultDialogRef.get;
-  return getDialog();
-}
-
-export function useFrame<V>(id: symbol): VueFrame<V> {
-  const getFrame = FrameCollection[id];
-  return getFrame() as VueFrame<V>;
-}
-
-export function createFrame<V>(options: FrameOptions<V>): VueFrame<V> {
-  const frame = new VueFrame<V>({
-    ...options,
-    dialogId: options.name ? Symbol(options.name) : Symbol('Frame'),
-  });
-  FrameCollection[frame.id] = () => frame;
-  return frame;
-}
-
-export function isFrame<V>(f: unknown): f is VueFrame<V> {
-  return typeof f === 'object' && f instanceof VueFrame;
 }

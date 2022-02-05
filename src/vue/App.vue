@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import HelloWorld from './components/HelloWorld.vue'
 import DialogView from './components/DialogView.vue'
-// import { BamDialog, createDialog, useDialog } from 'bam-ui'
-import { BamDialog, createDialog, useDialog } from '../../packages/vue'
+import { BamDialog, createDialog, useDialog } from '@vue-dist/bam-ui.es'
 
 const onOpenDialog = async () => {
   const d = useDialog()

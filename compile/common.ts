@@ -16,12 +16,16 @@ export default function getCommonCompileConfig(env: Env): UserConfig {
           find: /@style/,
           replacement: pathResolve('packages', 'core', 'style'),
         },
-      ]
+        {
+          find: /@vue-dist/,
+          replacement: pathResolve('pkg-vue'),
+        },
+      ],
     },
     css: {
       modules: {
         generateScopedName: 'bam-[local]',
-        hashPrefix: 'prefix'
+        hashPrefix: 'prefix',
       },
       preprocessorOptions: {
         scss: {

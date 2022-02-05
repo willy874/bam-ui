@@ -1,7 +1,6 @@
 import type { DialogConstructor, OpenFrameOptions, DialogHookProperty } from './types';
-import { getViewportOffset, clearDragImage } from 'bam-utility-plugins';
-import { isSymbol } from '../../utils';
-import { DragEventType } from '../../enum';
+import { isSymbol } from '@core/utils';
+import { DragEventType } from '@core/enum';
 import Frame from './frame';
 import { createFrame, isFrame } from './utils';
 
@@ -101,17 +100,9 @@ export default class Dialog {
 
   onDragstart(event: DragEvent, id: symbol, type: DragEventType) {
     const frame = this.getFrame(id);
-    if (frame && frame.element && event.dataTransfer) {
-      clearDragImage(event);
+    if (frame && event.dataTransfer) {
       this.focusFrame = frame;
-      /** 紀錄滑鼠相對於視窗的座標 **/
-      const viewPort = getViewportOffset(frame.element);
-      frame.mouseOffsetX = event.pageX - viewPort.left;
-      frame.mouseOffsetY = event.pageY - viewPort.top;
       this.eventType = type;
-      frame.onDragstart(event);
-    } else {
-      console.warn('not element or event not dataTransfer target');
     }
   }
 
@@ -119,16 +110,8 @@ export default class Dialog {
     const frame = this.getFrame(id);
     if (frame) {
       this.touches = Array.from(event.touches);
-      if (frame.element && type === DragEventType.DRAG_MOVE) {
-        /** 觸控點相對於視窗的座標 **/
-        const touch = this.touches[0];
-        const viewPort = getViewportOffset(frame.element);
-        frame.mouseOffsetX = touch.pageX - viewPort.left;
-        frame.mouseOffsetY = touch.pageY - viewPort.top;
-        this.focusFrame = frame;
-        this.eventType = type;
-      }
-      frame.onTouchstart(event);
+      this.focusFrame = frame;
+      this.eventType = type;
     }
   }
 
@@ -214,11 +197,11 @@ export default class Dialog {
 
   openFrame<V>(view: (() => V) | Frame<V>, options?: OpenFrameOptions): Promise<Frame<V>> {
     return new Promise(async (resolve, reject) => {
-      if (isFrame<V>(view)) {
+      if (isFrame(view)) {
         view.close = resolve;
         view.onError = reject;
       }
-      const frame = isFrame<V>(view)
+      const frame = isFrame(view)
         ? view
         : createFrame<V>({
             ...options,
@@ -265,7 +248,7 @@ export default class Dialog {
     return await this.callbackCloseFrame(frames, callback);
   }
 
-  _getFrame(arg?: GetFrameParam) {
+  getFrame(arg?: GetFrameParam) {
     if (typeof arg === 'object') {
       if (arg instanceof Frame) {
         return this.frames.find((f) => f.id === arg.id);
@@ -279,8 +262,5 @@ export default class Dialog {
       const id = arg as symbol;
       return this.frames.find((f) => f.id === id);
     }
-  }
-  getFrame(arg?: GetFrameParam) {
-    return this._getFrame(arg);
   }
 }

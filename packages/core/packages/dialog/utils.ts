@@ -2,66 +2,115 @@ import type { DialogOptions, FrameOptions, OpenFrameOptions } from './types';
 import Frame from './frame';
 import Dialog from './dialog';
 
-const DialogCollection: { [key: symbol]: () => Dialog } = {};
-const FrameCollection: { [key: symbol]: () => Frame } = {};
-
-const defaultDialogRef: {
-  get: (() => Dialog) | null;
-} = {
-  get: null,
-};
-
 function useDialogHandler(dialog: Dialog, callback?: Function) {
   const result = callback ? callback(dialog) : null;
   return result instanceof Dialog ? result : dialog;
 }
+
 function useFrameHandler(frame: Frame, callback?: Function) {
   const result = callback ? callback(frame) : null;
   return result instanceof Frame ? result : frame;
 }
 
-export function createDialog(options: DialogOptions = {}, pluginHandler?: Function) {
-  const dialog = new Dialog({
-    id: typeof options.name === 'symbol' ? options.name : Symbol(options.name),
-    hook: options.hook || {},
-    isBackgroundMask: options.isBackgroundMask === false ? false : true,
-    backgroundMask: options.backgroundMask || 'transparent',
-  });
-  const getDialog = () => useDialogHandler(dialog, pluginHandler);
-  DialogCollection[dialog.id] = getDialog;
-  if (!defaultDialogRef.get) {
-    defaultDialogRef.get = getDialog;
-  }
-  return dialog;
+export interface UtilsInterface<D = Dialog, F = Frame> {
+  dialogCollection: {
+    [key: symbol]: () => D;
+  };
+  frameCollection: {
+    [key: symbol]: () => F;
+  };
+  defaultDialogRef: {
+    get: (() => D) | null;
+  };
+  useDialogHandler(dialog: D, callback?: Function): D;
+  useFrameHandler(frame: F, callback?: Function): F;
+  createDialog(options: DialogOptions, pluginHandler?: Function): D;
+  useDialog(id?: symbol): D;
+  setDefaultDialog(dialog: D): D;
+  createFrame<V>(options: FrameOptions<V>, pluginHandler?: Function): Frame<V>;
+  openFrame<V>(view: (() => V) | Frame<V>, options?: OpenFrameOptions): Promise<Frame<V>>;
+  useFrame<V>(id: symbol): Frame<V>;
+  isDialog(d: unknown): d is D;
+  isFrame(f: unknown): f is F;
 }
 
-export function useDialog(id?: symbol) {
-  if (!defaultDialogRef.get) {
-    throw new Error('not created dialog');
-  }
-  const getDialog = (id && DialogCollection[id]) || defaultDialogRef.get;
-  return getDialog() as Dialog;
-}
+export const utils: UtilsInterface = {
+  dialogCollection: {},
+  frameCollection: {},
+  defaultDialogRef: {
+    get: null,
+  },
+  useDialogHandler(dialog, callback) {
+    const result = callback ? callback(dialog) : null;
+    return result instanceof Dialog ? result : dialog;
+  },
+  useFrameHandler(frame, callback) {
+    const result = callback ? callback(frame) : null;
+    return result instanceof Frame ? result : frame;
+  },
+  createDialog(options = {}, pluginHandler) {
+    const dialog = new Dialog({
+      id: typeof options.name === 'symbol' ? options.name : Symbol(options.name),
+      hook: options.hook || {},
+      isBackgroundMask: options.isBackgroundMask === false ? false : true,
+      backgroundMask: options.backgroundMask || 'transparent',
+    });
+    const getDialog = () => useDialogHandler(dialog, pluginHandler);
+    this.dialogCollection[dialog.id] = getDialog;
+    if (!this.defaultDialogRef.get) {
+      this.defaultDialogRef.get = getDialog;
+    }
+    return dialog;
+  },
+  useDialog(id) {
+    if (!this.defaultDialogRef.get) {
+      throw new Error('not created dialog');
+    }
+    const getDialog = (id && this.dialogCollection[id]) || this.defaultDialogRef.get;
+    return getDialog() as Dialog;
+  },
+  setDefaultDialog(dialog: Dialog) {
+    const getDialog = () => dialog;
+    this.dialogCollection[dialog.id] = getDialog;
+    this.defaultDialogRef.get = getDialog;
+    return getDialog();
+  },
+  createFrame(options, pluginHandler) {
+    const frame = new Frame({
+      ...options,
+      dialogId: options.name ? Symbol(options.name) : Symbol('Frame'),
+    });
+    this.frameCollection[frame.id] = () => useFrameHandler(frame, pluginHandler);
+    return frame;
+  },
+  openFrame<V>(view, options) {
+    const dialog = useDialog();
+    return dialog.openFrame<V>(view, options);
+  },
+  useFrame<V>(id) {
+    const getFrame = this.frameCollection[id];
+    return getFrame() as Frame<V>;
+  },
+  isDialog(f): f is Dialog {
+    return typeof f === 'object' && f instanceof Dialog;
+  },
+  isFrame(f): f is Frame {
+    return typeof f === 'object' && f instanceof Frame;
+  },
+};
 
-export function createFrame<V>(options: FrameOptions<V>, pluginHandler?: Function): Frame<V> {
-  const frame = new Frame<V>({
-    ...options,
-    dialogId: options.name ? Symbol(options.name) : Symbol('Frame'),
-  });
-  FrameCollection[frame.id] = () => useFrameHandler(frame, pluginHandler);
-  return frame;
-}
+export const createDialog: UtilsInterface['createDialog'] = (o, p) => utils.createDialog(o, p);
 
-export function openFrame<V>(view: (() => V) | Frame<V>, options?: OpenFrameOptions): Promise<Frame<V>> {
-  const dialog = useDialog();
-  return dialog.openFrame<V>(view, options);
-}
+export const useDialog: UtilsInterface['useDialog'] = (id) => utils.useDialog(id);
 
-export function useFrame<V>(id: symbol) {
-  const getFrame = FrameCollection[id];
-  return getFrame() as Frame<V>;
-}
+export const setDefaultDialog: UtilsInterface['setDefaultDialog'] = (d) => utils.setDefaultDialog(d);
 
-export function isFrame<V>(f: unknown): f is Frame<V> {
-  return typeof f === 'object' && f instanceof Frame;
-}
+export const createFrame: UtilsInterface['createFrame'] = (o, p) => utils.createFrame(o, p);
+
+export const openFrame: UtilsInterface['openFrame'] = (v, o) => utils.openFrame(v, o);
+
+export const useFrame: UtilsInterface['useFrame'] = (id) => utils.useFrame(id);
+
+export const isDialog: UtilsInterface['isDialog'] = utils.isDialog;
+
+export const isFrame: UtilsInterface['isFrame'] = utils.isFrame;

@@ -1,34 +1,18 @@
-import {
-  onMounted,
-  onUpdated,
-  onUnmounted,
-  computed,
-  defineComponent,
-  getCurrentInstance,
-  isVNode,
-  VNode,
-  DefineComponent,
-  PropType,
-} from 'vue';
-import { getFrameData, getFrameMethods } from '@core/packages';
+import { onMounted, onUpdated, onUnmounted, defineComponent, getCurrentInstance, PropType } from 'vue';
 import { getTransformStyleString } from 'bam-utility-plugins';
-import DialogClass from './dialog-class';
-import FrameClass from './frame-class';
+import { Dialog, Frame } from '@core/packages';
 import { getClassNames as css } from '@core/style';
+import { createVNode } from './utils';
 
 export default defineComponent({
-  name: 'BamFrame',
+  name: 'bam-frame',
   props: {
     dialog: {
-      type: Object as PropType<DialogClass>,
-      required: true,
-    },
-    view: {
-      type: Object as PropType<VNode | DefineComponent>,
+      type: Object as PropType<Dialog>,
       required: true,
     },
     frame: {
-      type: Object as PropType<FrameClass>,
+      type: Object as PropType<Frame>,
       required: true,
     },
     zIndex: {
@@ -39,6 +23,7 @@ export default defineComponent({
 
   setup(props, { expose }) {
     const instance = getCurrentInstance();
+    const View = createVNode(props.frame);
 
     /**
      * @Data
@@ -53,12 +38,6 @@ export default defineComponent({
     }
 
     /**
-     * @Computed
-     */
-    const frameData = computed(() => getFrameData(props.frame));
-    const frameMethods = computed(() => getFrameMethods(props.frame));
-
-    /**
      * @Event
      */
 
@@ -68,8 +47,6 @@ export default defineComponent({
     onMounted(() => props.frame.onMount(instance));
     onUpdated(() => props.frame.onUpdate(instance));
     onUnmounted(() => props.frame.onUnmount(instance));
-
-    console.log(props.view);
 
     /**
      * @Render
@@ -90,16 +67,7 @@ export default defineComponent({
         onClick={(e) => e.stopPropagation()}
         onMousedown={() => props.dialog.sortToRight(props.frame.id)}
       >
-        {isVNode(props.view) ? (
-          props.view
-        ) : (
-          <props.view
-            class={css().dialog_view}
-            frame-data={frameData.value}
-            frame-methods={frameMethods.value}
-            frame-props={props.frame.props}
-          />
-        )}
+        {View}
       </div>
     );
   },

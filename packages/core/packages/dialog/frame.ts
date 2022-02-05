@@ -1,8 +1,7 @@
 import type { FrameConstructor, FramePosition, PagePosition, FrameHookProperty } from './types';
-import { getViewportOffset } from 'bam-utility-plugins';
-import { DragEventType } from '../../enum';
+import { clearDragImage, getViewportOffset } from 'bam-utility-plugins';
+import { DragEventType } from '@core/enum';
 import { useDialog } from './utils';
-import Dialog from './dialog';
 
 const hook: FrameHookProperty = {
   mount: [],
@@ -58,7 +57,7 @@ export default class Frame<View = any> {
     this.onError = args.onError;
     this.hook = { ...hook };
     Object.keys(hook).forEach((hook) => {
-      if (args.hook) {
+      if (args.hook && typeof args.hook[hook] === 'function') {
         this.on(hook, args.hook[hook]);
       }
     });
@@ -99,10 +98,6 @@ export default class Frame<View = any> {
 
   setPosition(position: FramePosition) {
     const dialog = useDialog(this.dialogId);
-    this._setPosition(position, dialog);
-  }
-
-  protected _setPosition(position: FramePosition, dialog: Dialog) {
     if (typeof position === 'object') {
       this.top = typeof position.top === 'number' ? position.top + 'px' : position.top || '0';
       this.left = typeof position.left === 'number' ? position.left + 'px' : position.left || '0';
@@ -169,18 +164,14 @@ export default class Frame<View = any> {
     }
   }
 
-  async _onClose(dialog: Dialog) {
+  async onClose() {
+    const dialog = useDialog(this.dialogId);
     const indexOf = dialog.frames.map((f) => f.id).indexOf(this.id);
     const frames = dialog.frames.splice(indexOf, 1);
     const target = frames[0];
     if (target?.close) await target.close(dialog);
     this.close = null;
     return target;
-  }
-
-  onClose() {
-    const dialog = useDialog(this.dialogId);
-    return this._onClose(dialog);
   }
 
   onMount(...args: any[]) {
@@ -226,15 +217,37 @@ export default class Frame<View = any> {
     });
   }
 
-  onDragstart(...args: any[]) {
-    this.hook.dragstart.forEach((event) => {
-      event.apply(this, args);
+  onDragstart(event: DragEvent, type: DragEventType) {
+    const dialog = useDialog(this.dialogId);
+    dialog.onDragstart(event, this.id, type);
+    if (this.element && event.dataTransfer) {
+      clearDragImage(event);
+      /** 紀錄滑鼠相對於視窗的座標 **/
+      const viewPort = getViewportOffset(this.element);
+      this.mouseOffsetX = event.pageX - viewPort.left;
+      this.mouseOffsetY = event.pageY - viewPort.top;
+    } else {
+      console.warn('not element or event not dataTransfer target');
+    }
+    this.hook.dragstart.forEach((e) => {
+      e.apply(this, event);
     });
   }
 
-  onTouchstart(...args: any[]) {
-    this.hook.touchstart.forEach((event) => {
-      event.apply(this, args);
+  onTouchstart(event: TouchEvent, type: DragEventType) {
+    const dialog = useDialog(this.dialogId);
+    dialog.onTouchstart(event, this.id, type);
+    if (this.element && type === DragEventType.DRAG_MOVE) {
+      /** 觸控點相對於視窗的座標 **/
+      const touch = dialog.touches[0];
+      const viewPort = getViewportOffset(this.element);
+      this.mouseOffsetX = touch.pageX - viewPort.left;
+      this.mouseOffsetY = touch.pageY - viewPort.top;
+    } else {
+      console.warn('not element or event not dataTransfer target');
+    }
+    this.hook.touchstart.forEach((e) => {
+      e.apply(this, event);
     });
   }
 
@@ -320,9 +333,5 @@ export default class Frame<View = any> {
     this.hook.touchend.forEach((event) => {
       event.apply(this, args);
     });
-  }
-
-  createVNode(): any {
-    return this.view;
   }
 }

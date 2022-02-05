@@ -1,6 +1,6 @@
 {
   "name": "bam-ui",
-  "version": "0.0.26",
+  "version": "0.0.28",
   "license": "MIT",
   "repository": "https://github.com/willy874/bam-ui",
   "scripts": {
@@ -34,9 +34,7 @@
       "import": "./pkg-vue/bam-ui.es.js",
       "require": "./pkg-vue/bam-ui.umd.js",
       "script": "./pkg-vue/bam-ui.umd.js",
-      "types": "./pkg-vue/packages/vue/index.d.ts",
-      "style": "./pkg-vue/style.css",
-      "scss": "./packages/core/style/style.scss"
+      "types": "./pkg-vue/packages/vue/index.d.ts"
     }
   },
   "typesVersions": {

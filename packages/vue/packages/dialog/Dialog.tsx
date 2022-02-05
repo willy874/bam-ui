@@ -5,24 +5,21 @@ import {
   onUnmounted,
   defineComponent,
   getCurrentInstance,
-  markRaw,
   PropType,
   isReactive,
 } from 'vue';
-import { Dialog, DialogOptions } from '@core/packages';
+import { Dialog, Frame, DialogOptions } from '@core/packages';
 import { getClassNames as css } from '@core/style';
-import VueDialog from './dialog-class';
-import Frame from './frame-class';
-import { useFrame, createDialog, setDefaultDialog } from './utils';
+import { createDialog, setDefaultDialog } from './utils';
 import FrameComponent from './Frame';
 import { AnyComponentPublicInstance } from './types';
 
 export default defineComponent({
-  name: 'BamDialog',
+  name: 'bam-dialog',
 
   props: {
     dialog: {
-      type: Object as PropType<VueDialog | DialogOptions>,
+      type: Object as PropType<Dialog | DialogOptions>,
       default: () => ({}),
     },
   },
@@ -94,23 +91,9 @@ export default defineComponent({
         }}
       >
         <div class={css().dialog_container} style={{ background: dialog.backgroundMask }}></div>
-        {dialog.frames.map((frame, index: number) => {
-          const target = useFrame(frame.id);
-          if (target) {
-            const View = markRaw(target.createVNode());
-            return (
-              <FrameComponent
-                key={frame.id}
-                z-index={index}
-                frame={frame as Frame}
-                dialog={dialog as VueDialog}
-                view={View}
-              />
-            );
-          } else {
-            return null;
-          }
-        })}
+        {dialog.frames.map((frame, index: number) => (
+          <FrameComponent key={frame.id} z-index={index} frame={frame as Frame} dialog={dialog as Dialog} />
+        ))}
       </div>
     );
   },

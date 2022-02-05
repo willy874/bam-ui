@@ -8,6 +8,16 @@
 
 ### 基本範例
 
+main.ts
+
+```ts
+import { createApp } from 'vue';
+import App from './App.vue';
+import 'bam-ui/style';
+
+createApp(App).mount('#app');
+```
+
 App.vue
 
 ```vue
@@ -40,9 +50,18 @@ App.vue
   import { PropType } from 'vue';
   import { useDialog, BamFrameResize, BamFrameDraggable, FrameData, FrameMethods } from 'bam-ui/cue';
   const props = defineProps({
-    frameData: Object as PropType<FrameData>,
-    frameMethods: Object as PropType<FrameMethods>,
-    frameProps: Object as PropType<unknown>,
+    frameData: {
+      required: true,
+      type: Object as PropType<FrameData>,
+    },
+    frameMethods: {
+      required: true,
+      type: Object as PropType<FrameMethods>,
+    },
+    frameProps: {
+      type: Object as PropType<unknown>,
+      default: () => ({}),
+    },
   });
 
   const dialog = useDialog();

@@ -16,24 +16,6 @@ export default defineComponent({
   },
 
   setup(props, context) {
-    /**
-     * @Event
-     */
-    const onDragstart = (FrameComponent: FrameComponentInstance, type: DragEventType) => {
-      return (e) => {
-        if (FrameComponent) {
-          FrameComponent.dialog.onDragstart(e, FrameComponent.frame.id, type);
-        }
-      };
-    };
-    // const onTouchstart = (FrameComponent: FrameComponentInstance, type: DragEventType) => {
-    //   return (e) => {
-    //     if (FrameComponent) {
-    //       FrameComponent.dialog.onTouchstart(e, FrameComponent.frame.id, type);
-    //     }
-    //   };
-    // };
-
     const FrameComponent = findParentComponent<FrameComponentInstance>(Frame);
     /**
      * @Render
@@ -56,25 +38,25 @@ export default defineComponent({
                   class={css().dialog_resize_top}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_TOP)}
+                  onDragstart={(e) => FrameComponent.frame.onDragstart(e, DragEventType.RESIZE_TOP)}
                 ></div>
                 <div
                   class={css().dialog_resize_bottom}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_BOTTOM)}
+                  onDragstart={(e) => FrameComponent.frame.onDragstart(e, DragEventType.RESIZE_BOTTOM)}
                 ></div>
                 <div
                   class={css().dialog_resize_right}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_RIGHT)}
+                  onDragstart={(e) => FrameComponent.frame.onDragstart(e, DragEventType.RESIZE_RIGHT)}
                 ></div>
                 <div
                   class={css().dialog_resize_left}
                   onClick={(e) => e.stopPropagation()}
                   draggable={true}
-                  onDragstart={onDragstart(FrameComponent, DragEventType.RESIZE_LEFT)}
+                  onDragstart={(e) => FrameComponent.frame.onDragstart(e, DragEventType.RESIZE_LEFT)}
                 ></div>
               </>
             ) : null}

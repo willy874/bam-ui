@@ -25,7 +25,8 @@
     "paths": {
       "@src/*": ["src/*"],
       "@core/*": ["packages/core/*"],
-      "@style/*": ["packages/core/style/*"]
+      "@style/*": ["packages/core/style/*"],
+      "@vue-dist/*": ["pkg-vue/*"]
     }
   },
   "plugins": [{ "name": "typescript-plugin-css-modules" }],

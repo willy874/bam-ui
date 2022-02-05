@@ -15,24 +15,6 @@ export default defineComponent({
   },
 
   setup(props, context) {
-    /**
-     * @Event
-     */
-    const onDragstart = (FrameComponent?: FrameComponentInstance) => {
-      return (e) => {
-        if (FrameComponent) {
-          FrameComponent.dialog.onDragstart(e, FrameComponent.frame.id, DragEventType.DRAG_MOVE);
-        }
-      };
-    };
-    const onTouchstart = (FrameComponent?: FrameComponentInstance) => {
-      return (e) => {
-        if (FrameComponent) {
-          FrameComponent.dialog.onTouchstart(e, FrameComponent.frame.id, DragEventType.DRAG_MOVE);
-        }
-      };
-    };
-
     const FrameComponent = findParentComponent<FrameComponentInstance>(Frame);
     /**
      * @Render
@@ -43,8 +25,8 @@ export default defineComponent({
           <props.tag
             style={{ cursor: FrameComponent.frame.isDraggable && 'move' }}
             draggable={true}
-            onDragstart={onDragstart(FrameComponent)}
-            onTouchstart={onTouchstart(FrameComponent)}
+            onDragstart={(e) => FrameComponent.frame.onDragstart(e, DragEventType.DRAG_MOVE)}
+            onTouchstart={(e) => FrameComponent.frame.onDragstart(e, DragEventType.DRAG_MOVE)}
           >
             {context.slots.default && context.slots.default()}
           </props.tag>
