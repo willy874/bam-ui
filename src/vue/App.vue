@@ -20,7 +20,7 @@ console.log(dialog);
 <template>
   <div>
     <div>
-      <img alt="Vue logo" src="/@/assets/logo.png" />
+      <img alt="Vue logo" src="./logo.png" />
       <HelloWorld msg="Hello Vue 3 + TypeScript + Vite" />
       <button type="button" @click="onOpenDialog">打開</button>
       <div>123</div>

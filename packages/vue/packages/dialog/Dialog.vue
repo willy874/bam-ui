@@ -4,17 +4,16 @@
 import {
   computed,
   onMounted,
-  onUpdated,
   onUnmounted,
   defineComponent,
-  getCurrentInstance,
   PropType,
   isReactive,
 ComponentPublicInstance,
+h,
 } from 'vue';
 import { Dialog, DialogOptions } from '@core/packages';
 import { getClassNames as css } from '@core/style';
-import { createDialog, setDefaultDialog, useDialog } from './utils';
+import { createDialog, setDefaultDialog } from './utils';
 import FrameComponent from './Frame.vue';
 
 export default defineComponent({
@@ -32,8 +31,6 @@ export default defineComponent({
   },
 
   setup(props, { expose }) {
-    const instance = getCurrentInstance();
-
     /**
      * @Data
      */
@@ -64,7 +61,6 @@ export default defineComponent({
      * @Lifecycle
      */
     onMounted(() => {
-      dialog.onMount(instance);
       document.body.addEventListener('click', onClick);
       document.body.addEventListener('dragover', onDragover);
       document.body.addEventListener('dragend', onDragend);
@@ -72,11 +68,7 @@ export default defineComponent({
       document.body.addEventListener('touchend', onTouchend);
       window.addEventListener('resize', onResize);
     });
-    onUpdated(() => {
-      dialog.onUpdate(instance);
-    });
     onUnmounted(() => {
-      dialog.onUnmount(instance);
       document.body.removeEventListener('click', onClick);
       document.body.removeEventListener('dragover', onDragover);
       document.body.removeEventListener('dragend', onDragend);
@@ -85,26 +77,23 @@ export default defineComponent({
       window.removeEventListener('resize', onResize);
     });
 
-    return {
-      dialogId: dialog.id,
-      frames: dialog.frames,
-      backgroundMask: dialog.backgroundMask,
-      isBackgroundMask,
-      useDialog,
-      setRootElement: (el: Element | ComponentPublicInstance | null) => dialog.setRootElement(el),
-      css: css(),
-    }
+    return () => h('div', {
+      ref: (el: Element | ComponentPublicInstance | null) => dialog.setRootElement(el),
+      class: css().dialog,
+      style: { pointerEvents: isBackgroundMask.value ? 'auto' : 'none', opacity: dialog.frames.length ? 1 : 0 }
+    }, [
+      h('div', {
+        class: css().dialog_container,
+        style: { background: dialog.backgroundMask }
+      }, (
+        dialog.frames.map((frame, index) => h(FrameComponent, {
+          key: frame.id,
+          zIndex: index,
+          frame,
+          dialog
+        }))
+      ))
+    ])
   },
 });
 </script>
-
-<template>
-  <div 
-    :ref="setRootElement" :class="css.dialog"
-    :style="{ pointerEvents: isBackgroundMask ? 'auto' : 'none', opacity: frames.length ? 1 : 0 }"
-  >
-    <div :class="css.dialog_container" :style="{ background: backgroundMask }">
-      <FrameComponent v-for="(frame, index) in frames" :key="frame.id" :z-index="index" :frame="frame" :dialog="useDialog(dialogId)"></FrameComponent>
-    </div>
-  </div>
-</template>

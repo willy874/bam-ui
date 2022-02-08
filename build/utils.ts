@@ -1,6 +1,6 @@
 import { resolve } from 'path';
 import vue from '@vitejs/plugin-vue';
-import vueJsx from '@vitejs/plugin-vue-jsx';
+import react from '@vitejs/plugin-react';
 
 export function pathResolve(dir: string | string[], ...dirs: string[]) {
   if (typeof dir === 'string') {
@@ -13,15 +13,14 @@ export function pathResolve(dir: string | string[], ...dirs: string[]) {
 }
 
 export function getFrameworkDependPlugins(type) {
+  if (type === 'all') {
+    return [react(), vue()];
+  }
   if (type === 'vue') {
-    return [
-      //
-      vue(),
-      //
-      vueJsx(),
-      //
-      // vueSetupExtend(),
-    ];
+    return [vue()];
+  }
+  if (type === 'react') {
+    return [];
   }
 
   return [];

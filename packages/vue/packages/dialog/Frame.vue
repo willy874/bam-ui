@@ -1,14 +1,11 @@
 <script lang="ts">
 import {
-  onMounted,
-  onUpdated,
-  onUnmounted,
   defineComponent,
-  getCurrentInstance,
   PropType,
   Teleport,
   reactive,
   h,
+  getCurrentInstance,
 } from 'vue';
 import { getTransformStyleString } from 'bam-utility-plugins';
 import { Dialog, Frame, OpenFrameOptions } from '@core/packages';
@@ -64,13 +61,6 @@ export default defineComponent({
     if (dialog.isBackgroundMask && frame.hook.bgclick.length === 0) {
       frame.on('bgclick', () => frame.onClose());
     }
-
-    /**
-     * @Lifecycle
-     */
-    onMounted(() => frame.onMount(instance));
-    onUpdated(() => frame.onUpdate(instance));
-    onUnmounted(() => frame.onUnmount(instance));
 
     const renderFrame = () =>
       h(

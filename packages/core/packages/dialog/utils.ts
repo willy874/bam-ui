@@ -1,6 +1,7 @@
 import type { DialogOptions, FrameOptions, OpenFrameOptions } from './types';
 import Frame from './frame';
 import Dialog from './dialog';
+import { uuidDate } from '../other/utils';
 
 function useDialogHandler(dialog: Dialog, callback?: Function) {
   const result = callback ? callback(dialog) : null;
@@ -50,7 +51,7 @@ export const utils: UtilsInterface = {
   },
   createDialog(options = {}, pluginHandler) {
     const dialog = new Dialog({
-      id: typeof options.name === 'symbol' ? options.name : Symbol(options.name),
+      id: typeof options.name === 'symbol' ? options.name : Symbol(uuidDate(String(options.name))),
       hook: options.hook || {},
       isBackgroundMask: options.isBackgroundMask === false ? false : true,
       backgroundMask: options.backgroundMask || 'transparent',
@@ -76,7 +77,7 @@ export const utils: UtilsInterface = {
     return getDialog();
   },
   createFrame(options, pluginHandler) {
-    const id = options.name ? Symbol(options.name) : Symbol('Frame');
+    const id = options.name ? Symbol(uuidDate(String(options.name))) : Symbol(uuidDate('Frame'));
     const frame = new Frame({
       ...options,
       id: typeof options.id === 'symbol' ? options.dialogId : id,

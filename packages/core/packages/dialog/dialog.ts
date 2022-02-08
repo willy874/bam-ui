@@ -80,6 +80,7 @@ export default class Dialog {
     [...this.frames].forEach((frame) => {
       frame.onResize(e);
     });
+    this.onUpdate();
   }
 
   onBgclick(e: MouseEvent) {
@@ -95,6 +96,7 @@ export default class Dialog {
           });
         }
       });
+      this.onUpdate();
     }
   }
 
@@ -104,6 +106,7 @@ export default class Dialog {
       this.focusFrame = frame;
       this.eventType = type;
     }
+    this.onUpdate();
   }
 
   onTouchstart(event: TouchEvent, id: symbol, type: DragEventType) {
@@ -113,6 +116,7 @@ export default class Dialog {
       this.focusFrame = frame;
       this.eventType = type;
     }
+    this.onUpdate();
   }
 
   onDragover(event: DragEvent) {
@@ -135,6 +139,7 @@ export default class Dialog {
       }
 
       frame.onDragover(event);
+      this.onUpdate();
     }
   }
 
@@ -150,6 +155,7 @@ export default class Dialog {
         });
       }
       frame.onTouchmove(event);
+      this.onUpdate();
     }
   }
 
@@ -160,6 +166,7 @@ export default class Dialog {
       frame.mouseOffsetX = 0;
       frame.mouseOffsetY = 0;
       frame.onDragend(event);
+      this.onUpdate();
     }
   }
 
@@ -173,6 +180,7 @@ export default class Dialog {
         frame.mouseOffsetY = 0;
       }
       frame.onTouchend(event);
+      this.onUpdate();
     }
   }
 
@@ -182,7 +190,7 @@ export default class Dialog {
 
   setFrameItemElement(index: number) {
     return (value: Element) => {
-      this.frames[index].element = value;
+      this.frames[index].setFrameElement(value);
     };
   }
 
@@ -192,6 +200,7 @@ export default class Dialog {
       const indexOf = this.frames.map((p) => p.id).indexOf(frame.id);
       const frames = this.frames.splice(indexOf, 1);
       this.frames.push(...frames);
+      this.onUpdate();
     }
   }
 
@@ -211,6 +220,7 @@ export default class Dialog {
           });
 
       this.frames.push(frame);
+      this.onUpdate();
     });
   }
 

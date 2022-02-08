@@ -2,6 +2,7 @@ import type { FrameConstructor, FramePosition, PagePosition, FrameHookProperty }
 import { clearDragImage, getViewportOffset } from 'bam-utility-plugins';
 import { DragEventType } from '@core/enum';
 import { useDialog } from './utils';
+import { uuidDate } from '../other/utils';
 
 const hook: FrameHookProperty = {
   mount: [],
@@ -17,10 +18,10 @@ const hook: FrameHookProperty = {
 };
 
 export default class Frame<View = any> {
-  id: symbol;
-  dialogId: symbol;
-  view: View;
-  props: object;
+  readonly id: symbol;
+  readonly dialogId: symbol;
+  readonly view: View;
+  readonly props: object;
   isOverLimit: boolean;
   isDraggable: boolean;
   isResizable: boolean;
@@ -35,14 +36,15 @@ export default class Frame<View = any> {
   mouseOffsetY = 0;
   close: Function | null;
   onError: Function;
-  hook: FrameHookProperty;
+  readonly hook: FrameHookProperty;
   resizeObserver: ResizeObserver | null = null;
   isDragged: boolean = false;
   isResized: boolean = false;
+  isUpdated: boolean = true;
   dialogPadding: number = 60;
 
   constructor(args: FrameConstructor<View>) {
-    this.id = args.id || Symbol('Frame');
+    this.id = args.id || Symbol(uuidDate('Frame'));
     this.dialogId = args.dialogId;
     this.view = args.view;
     this.props = args.props || {};
@@ -76,6 +78,7 @@ export default class Frame<View = any> {
       this.isDraggable = false;
       this.isDragged = true;
     }
+    this.onUpdate();
   }
 
   setResizable(bool: boolean) {
@@ -86,14 +89,17 @@ export default class Frame<View = any> {
       this.isResizable = false;
       this.isResized = true;
     }
+    this.onUpdate();
   }
 
   setOverLimit(bool: boolean) {
     this.isOverLimit = bool;
+    this.onUpdate();
   }
 
   setFull(bool: boolean) {
     this.isFull = bool;
+    this.onUpdate();
   }
 
   setPosition(position: FramePosition) {
@@ -171,6 +177,14 @@ export default class Frame<View = any> {
     const target = frames[0];
     if (target?.close) await target.close(target);
     this.close = null;
+    this.onUpdate();
+    window.setTimeout(() => {
+      if (!this.isUpdated) {
+        dialog.onUpdate();
+        this.isUpdated = true;
+      }
+    }, 0);
+    this.isUpdated = false;
     return target;
   }
 
@@ -185,6 +199,7 @@ export default class Frame<View = any> {
             this.setBoxSize();
           }
         }
+        this.onUpdate();
       });
       this.resizeObserver.observe(this.element);
     }
@@ -212,6 +227,7 @@ export default class Frame<View = any> {
   onResize(...args: any[]) {
     this.setPosition(this.position);
     this.setBoxSize();
+    this.onUpdate();
     this.hook.update.forEach((event) => {
       event.apply(this, args);
     });
@@ -226,6 +242,7 @@ export default class Frame<View = any> {
       const viewPort = getViewportOffset(this.element);
       this.mouseOffsetX = event.pageX - viewPort.left;
       this.mouseOffsetY = event.pageY - viewPort.top;
+      this.onUpdate();
     } else {
       console.warn('not element or event not dataTransfer target');
     }
@@ -243,6 +260,7 @@ export default class Frame<View = any> {
       const viewPort = getViewportOffset(this.element);
       this.mouseOffsetX = touch.pageX - viewPort.left;
       this.mouseOffsetY = touch.pageY - viewPort.top;
+      this.onUpdate();
     } else {
       console.warn('not element or event not dataTransfer target');
     }
@@ -277,8 +295,8 @@ export default class Frame<View = any> {
         position.top = pos.pageY - this.mouseOffsetY + 'px';
         position.left = pos.pageX - this.mouseOffsetX + 'px';
       }
-
       this.setPosition(position);
+      this.onUpdate();
     }
   }
 
@@ -311,6 +329,7 @@ export default class Frame<View = any> {
         this.left = viewPort.left - plusWidth + 'px';
         this.width = elementClientWidth + plusWidth + 'px';
       }
+      this.onUpdate();
     }
   }
 

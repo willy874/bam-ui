@@ -43,10 +43,3 @@ export function findParentComponent<T = ComponentPublicInstance>(component: any)
     }
   }
 }
-
-export function defineComponentProps(component: any) {
-  if (isProxy(component)) {
-    console.warn('請放入未被代理的組件');
-  }
-  return markRaw(defineComponent(component));
-}

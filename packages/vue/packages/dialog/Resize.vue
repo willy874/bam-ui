@@ -20,16 +20,16 @@ export default defineComponent({
     const FrameComponent = findParentComponent<FrameComponentInstance>(Frame);
 
     const resizeData = [
-      { class: css().dialog_resize_top, type: DragEventType.RESIZE_TOP },
-      { class: css().dialog_resize_bottom, type: DragEventType.RESIZE_BOTTOM },
-      { class: css().dialog_resize_right, type: DragEventType.RESIZE_RIGHT },
-      { class: css().dialog_resize_left, type: DragEventType.RESIZE_LEFT },
+      { class: () => css().dialog_resize_top, type: DragEventType.RESIZE_TOP },
+      { class: () => css().dialog_resize_bottom, type: DragEventType.RESIZE_BOTTOM },
+      { class: () => css().dialog_resize_right, type: DragEventType.RESIZE_RIGHT },
+      { class: () => css().dialog_resize_left, type: DragEventType.RESIZE_LEFT },
     ];
 
     const renderResize = () =>
       resizeData.map((data) =>
         h('div', {
-          class: data.class,
+          class: data.class(),
           onClick: (e) => e.stopPropagation(),
           draggable: true,
           onDragstart: (e) => FrameComponent?.frame.onDragstart(e, data.type),

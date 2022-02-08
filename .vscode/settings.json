@@ -3,14 +3,8 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "volar.tsPlugin": true,
   "volar.tsPluginStatus": false,
-  //===========================================
-  //============= Editor ======================
-  //===========================================
   "editor.tabSize": 2,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  //===========================================
-  //============= files =======================
-  //===========================================
   "files.eol": "\n",
   "search.exclude": {
     "**/node_modules": true,

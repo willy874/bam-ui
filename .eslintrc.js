@@ -22,6 +22,7 @@ module.exports = defineConfig({
   },
   extends: [
     'plugin:vue/vue3-recommended',
+    'plugin:eslint-config-react-app',
     'plugin:@typescript-eslint/recommended',
     'prettier',
     'plugin:prettier/recommended',

@@ -1,5 +1,3 @@
-declare global {}
-
 type FrameworkType = 'vanilla' | 'vue';
 type CssFrameworkType = 'module' | 'tailwind';
 
@@ -21,7 +19,7 @@ declare module '*.module.scss' {
       [key: string]: string;
     };
     readonly [key: string]: string;
-    cssString: string
+    cssString: string;
   };
   export default classes;
 }
