@@ -1,5 +1,5 @@
 import { build } from 'vite';
-import getLibraryCompile from '../compile/lib';
+import getLibraryCompile from '../build/lib';
 
 build(
   getLibraryCompile({

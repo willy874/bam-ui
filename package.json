@@ -3,10 +3,15 @@
   "version": "0.0.28",
   "license": "MIT",
   "repository": "https://github.com/willy874/bam-ui",
+  "keywords": [
+    "bam",
+    "bam-ui",
+    "vue"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "build:vue": "vite build -c compile/vue-config.ts",
+    "build:vue": "vite build -c build/vue-config.ts",
     "start": "docker-compose up",
     "preview": "vite preview"
   },

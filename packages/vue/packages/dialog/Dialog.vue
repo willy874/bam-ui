@@ -1,3 +1,6 @@
+
+
+<script lang="ts">
 import {
   computed,
   onMounted,
@@ -7,15 +10,19 @@ import {
   getCurrentInstance,
   PropType,
   isReactive,
+ComponentPublicInstance,
 } from 'vue';
-import { Dialog, Frame, DialogOptions } from '@core/packages';
+import { Dialog, DialogOptions } from '@core/packages';
 import { getClassNames as css } from '@core/style';
-import { createDialog, setDefaultDialog } from './utils';
-import FrameComponent from './Frame';
-import { AnyComponentPublicInstance } from './types';
+import { createDialog, setDefaultDialog, useDialog } from './utils';
+import FrameComponent from './Frame.vue';
 
 export default defineComponent({
   name: 'bam-dialog',
+
+  components: {
+   FrameComponent 
+  },
 
   props: {
     dialog: {
@@ -78,23 +85,26 @@ export default defineComponent({
       window.removeEventListener('resize', onResize);
     });
 
-    /**
-     * @Render
-     */
-    return () => (
-      <div
-        ref={(e: AnyComponentPublicInstance | Element) => dialog.setRootElement<AnyComponentPublicInstance>(e)}
-        class={css().dialog}
-        style={{
-          pointerEvents: isBackgroundMask.value ? 'auto' : 'none',
-          opacity: dialog.frames.length ? 1 : 0,
-        }}
-      >
-        <div class={css().dialog_container} style={{ background: dialog.backgroundMask }}></div>
-        {dialog.frames.map((frame, index: number) => (
-          <FrameComponent key={frame.id} z-index={index} frame={frame as Frame} dialog={dialog as Dialog} />
-        ))}
-      </div>
-    );
+    return {
+      dialogId: dialog.id,
+      frames: dialog.frames,
+      backgroundMask: dialog.backgroundMask,
+      isBackgroundMask,
+      useDialog,
+      setRootElement: (el: Element | ComponentPublicInstance | null) => dialog.setRootElement(el),
+      css: css(),
+    }
   },
 });
+</script>
+
+<template>
+  <div 
+    :ref="setRootElement" :class="css.dialog"
+    :style="{ pointerEvents: isBackgroundMask ? 'auto' : 'none', opacity: frames.length ? 1 : 0 }"
+  >
+    <div :class="css.dialog_container" :style="{ background: backgroundMask }">
+      <FrameComponent v-for="(frame, index) in frames" :key="frame.id" :z-index="index" :frame="frame" :dialog="useDialog(dialogId)"></FrameComponent>
+    </div>
+  </div>
+</template>

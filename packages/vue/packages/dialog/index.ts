@@ -1,9 +1,9 @@
 import { App } from 'vue';
 import { Dialog, Frame } from '@core/packages';
-import BamDialog from './Dialog';
-import BamFrame from './Frame';
-import BamFrameDraggable from './Draggable';
-import BamFrameResize from './Resize';
+import BamDialog from './Dialog.vue';
+import BamFrame from './Frame.vue';
+import BamFrameDraggable from './Draggable.vue';
+import BamFrameResize from './Resize.vue';
 
 export { BamDialog, BamFrame, BamFrameDraggable, BamFrameResize, Dialog, Frame };
 

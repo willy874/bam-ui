@@ -36,7 +36,7 @@ App.vue
     <div class="main">
       <button type="button" @click="onOpenDialog">打開</button>
     </div>
-    <bam-dialog />
+    <BamDialog />
   </div>
 </template>
 ```
@@ -68,12 +68,12 @@ App.vue
 
 <template>
   <div class="view">
-    <bam-frame-resize>
+    <BamFrameResize>
       <div style="padding: 1rem;">
         <button @click="onClose">關閉</button>
-        <bam-frame-draggable>拖拉</bam-frame-draggable>
+        <BamFrameDraggable>拖拉</BamFrameDraggable>
       </div>
-    </bam-frame-resize>
+    </BamFrameResize>
   </div>
 </template>
 ```

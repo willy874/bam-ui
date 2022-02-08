@@ -1,3 +1,4 @@
+<script lang="ts">
 import {
   onMounted,
   onUpdated,
@@ -7,6 +8,7 @@ import {
   PropType,
   Teleport,
   reactive,
+  h,
 } from 'vue';
 import { getTransformStyleString } from 'bam-utility-plugins';
 import { Dialog, Frame, OpenFrameOptions } from '@core/packages';
@@ -70,32 +72,35 @@ export default defineComponent({
     onUpdated(() => frame.onUpdate(instance));
     onUnmounted(() => frame.onUnmount(instance));
 
-    const renderFrame = () => (
-      <div
-        ref={(e: Element) => frame.setFrameElement(e)}
-        class={css().dialog_frame}
-        style={{
-          zIndex: props.zIndex + 1,
-          transform: getTransformStyleString({
-            translateX: frame.isFull ? '0' : frame.left,
-            translateY: frame.isFull ? '0' : frame.top,
-          }),
-          width: frame.isFull ? '100vw' : frame.width,
-          height: frame.isFull ? '100vh' : frame.height,
-        }}
-        onClick={(e) => e.stopPropagation()}
-        onMousedown={() => dialog.sortToRight(frame.id)}
-      >
-        {View}
-      </div>
-    );
+    const renderFrame = () =>
+      h(
+        'div',
+        {
+          ref: (e: Element) => frame.setFrameElement(e),
+          class: css().dialog_frame,
+          style: {
+            zIndex: props.zIndex + 1,
+            transform: getTransformStyleString({
+              translateX: frame.isFull ? '0' : frame.left,
+              translateY: frame.isFull ? '0' : frame.top,
+            }),
+            width: frame.isFull ? '100vw' : frame.width,
+            height: frame.isFull ? '100vh' : frame.height,
+          },
+          onClick: (e) => e.stopPropagation(),
+          onMousedown: () => dialog.sortToRight(frame.id),
+        },
+        [View],
+      );
     /**
      * @Render
      */
     if (slots.default) {
-      return () => <Teleport to={'#' + rootId}>{renderFrame()}</Teleport>;
+      return () => h(Teleport, { to: '#' + rootId }, [renderFrame()]);
     } else {
       return () => renderFrame();
     }
   },
 });
+
+</script>
